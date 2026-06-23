@@ -85,411 +85,368 @@
 </head>
 <body class="h-screen overflow-hidden flex flex-col bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
 
-    <!-- Full-screen Activation Guard (Login Overlay) -->
-    <div id="login-screen" class="fixed inset-0 bg-slate-950 z-[9999] flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl max-w-md w-full text-center space-y-6 border border-slate-100 animate-fade-in">
-            <div class="space-y-2">
-                <span class="text-6xl block drop-shadow-md">🇹🇭</span>
-                <h2 class="text-2xl font-black text-slate-950 tracking-tight">ThaiSyllable Pro</h2>
-                <div class="h-1 w-12 bg-blue-600 mx-auto rounded-full"></div>
+    <!-- Header containing ThaiSyllable Branding without version suffixes -->
+    <header class="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 py-3 px-4 md:px-6 flex-shrink-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <button id="btn-toggle-drawer" onclick="toggleMobileDrawer()" class="lg:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-lg transition-colors" title="Danh sách từ">
+                    <i class="fa-solid fa-list-ul"></i>
+                </button>
+                <span class="text-xl hidden xs:inline">🇹🇭</span>
+                <div>
+                    <h1 class="text-sm md:text-base font-black text-slate-900 dark:text-white leading-none flex items-center gap-1.5">
+                        ThaiSyllable <span class="text-blue-600 dark:text-blue-400">THÁI DỄ HỌC</span>
+                    </h1>
+                    <p class="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider hidden sm:block">Giải mã nguyên âm biến hình & giản lược chính tả dễ dàng nhất</p>
+                </div>
             </div>
             
-            <div class="space-y-2">
-                <p class="text-sm font-extrabold text-slate-700">MÃ KÍCH HOẠT HỌC VIÊN</p>
-                <p class="text-xs text-slate-400 font-bold leading-relaxed px-2">Vui lòng nhập mã kích hoạt học tập được cấp để bắt đầu trải nghiệm hệ thống chuyên đề ngôn ngữ Thái.</p>
-            </div>
+            <div class="flex items-center gap-2 md:gap-4">
+                <button onclick="toggleDarkMode()" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs transition-colors" title="Chuyển chế độ Sáng/Tối">
+                    <i id="dark-mode-icon" class="fa-solid fa-moon"></i>
+                </button>
 
-            <div class="space-y-3">
-                <input type="text" id="activation-code" placeholder="TH-XXXX-XXXX" 
-                    class="w-full text-center bg-slate-100 text-slate-950 placeholder-slate-400 font-bold uppercase rounded-xl py-3.5 px-4 outline-none border-2 border-transparent focus:border-blue-500 focus:bg-white transition-all tracking-widest text-sm">
-                
-                <p id="login-error" class="hidden text-xs font-bold text-red-500 bg-red-50 py-2.5 px-4 rounded-lg border border-red-100 animate-pulse">
-                    Mã kích hoạt không hợp lệ. Vui lòng kiểm tra lại.
-                </p>
+                <nav class="flex bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg text-xs font-bold shadow-inner">
+                    <button onclick="switchTab('learn')" id="tab-learn" class="px-3 py-1.5 rounded-md bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm transition-all">Tra cứu</button>
+                    <button onclick="switchTab('theory')" id="tab-theory" class="px-3 py-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">Quy luật</button>
+                    <button onclick="switchTab('quiz')" id="tab-quiz" class="px-3 py-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">Quiz</button>
+                </nav>
+                <button onclick="toggleMobileDrawer()" id="btn-library-desktop" class="hidden lg:flex items-center gap-1 text-[10px] font-black bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-lg border border-blue-100 dark:border-blue-900 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all">
+                    <i class="fa-solid fa-folder-open"></i> THƯ VIỆN TỪ
+                </button>
             </div>
-
-            <button id="btn-verify" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all shadow-lg shadow-blue-200 uppercase tracking-widest hover:translate-y-[-1px] active:translate-y-[1px]">
-                Kích hoạt tài khoản <i class="fa-solid fa-key ml-1"></i>
-            </button>
         </div>
-    </div>
+    </header>
 
-    <!-- Main Application Wrapper (Hidden by default until activated) -->
-    <div id="app-content" class="hidden h-screen flex flex-col overflow-hidden">
+    <!-- App Main Workspace -->
+    <div class="flex flex-grow overflow-hidden relative">
         
-        <!-- Header containing ThaiSyllable Branding -->
-        <header class="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 py-3 px-4 md:px-6 flex-shrink-0 z-40 shadow-sm">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <button id="btn-toggle-drawer" onclick="toggleMobileDrawer()" class="lg:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-lg transition-colors" title="Danh sách từ">
-                        <i class="fa-solid fa-list-ul"></i>
-                    </button>
-                    <span class="text-xl hidden xs:inline">🇹🇭</span>
-                    <div>
-                        <h1 class="text-sm md:text-base font-black text-slate-900 dark:text-white leading-none flex items-center gap-1.5">
-                            ThaiSyllable <span class="text-blue-600 dark:text-blue-400">THÁI DỄ HỌC</span>
-                        </h1>
-                        <p class="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider hidden sm:block">Giải mã nguyên âm biến hình & giản lược chính tả dễ dàng nhất</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-2 md:gap-4">
-                    <button onclick="toggleDarkMode()" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs transition-colors" title="Chuyển chế độ Sáng/Tối">
-                        <i id="dark-mode-icon" class="fa-solid fa-moon"></i>
-                    </button>
+        <div id="drawer-backdrop" onclick="toggleMobileDrawer()" class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
 
-                    <nav class="flex bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg text-xs font-bold shadow-inner">
-                        <button onclick="switchTab('learn')" id="tab-learn" class="px-3 py-1.5 rounded-md bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm transition-all">Tra cứu</button>
-                        <button onclick="switchTab('theory')" id="tab-theory" class="px-3 py-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">Quy luật</button>
-                        <button onclick="switchTab('quiz')" id="tab-quiz" class="px-3 py-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">Quiz</button>
-                    </nav>
-                    <button onclick="toggleMobileDrawer()" id="btn-library-desktop" class="hidden lg:flex items-center gap-1 text-[10px] font-black bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-lg border border-blue-100 dark:border-blue-900 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all">
-                        <i class="fa-solid fa-folder-open"></i> THƯ VIỆN TỪ
+        <aside id="sidebar-drawer" class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col flex-shrink-0 h-full z-50 lg:z-30 lg:static transform -translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-xl lg:shadow-none">
+            
+            <div class="p-3 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 space-y-2">
+                <div class="flex items-center justify-between lg:hidden pb-1">
+                    <span class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase">THƯ VIỆN TỪ VỰNG</span>
+                    <button onclick="toggleMobileDrawer()" class="p-1.5 text-slate-400 hover:text-slate-950 dark:hover:text-white rounded-lg text-sm">
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
+                </div>
+                <div class="relative">
+                    <input type="text" id="search-input" placeholder="Tìm kiếm nhanh 300+ từ..." 
+                        class="w-full pl-8 pr-2 py-1.5 bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-xs focus:ring-2 focus:ring-blue-400 outline-none text-slate-900 dark:text-white transition-all">
+                    <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-[10px]"></i>
+                </div>
+                <div class="flex gap-1">
+                    <select id="filter-class" class="flex-1 text-[9px] font-bold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-1 outline-none text-slate-600 dark:text-slate-300">
+                        <option value="all">Lớp chữ</option>
+                        <option value="high">Lớp Cao</option>
+                        <option value="mid">Lớp Trung</option>
+                        <option value="low">Lớp Thấp</option>
+                    </select>
+                    <select id="filter-group" class="flex-1 text-[9px] font-bold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-1 outline-none text-slate-600 dark:text-slate-300">
+                        <option value="all">Quy luật (Tất cả)</option>
+                        <option value="1">-ะ ➔ -ั</option>
+                        <option value="2">เ-ะ ➔ เ-็</option>
+                        <option value="3">แ-ะ ➔ แ-็</option>
+                        <option value="4">เ-อ ➔ เ-ิ</option>
+                        <option value="5">โ-ะ ➔ ∅</option>
+                        <option value="6">ัว ➔ ว</option>
+                    </select>
                 </div>
             </div>
-        </header>
-
-        <!-- App Main Workspace -->
-        <div class="flex flex-grow overflow-hidden relative">
             
-            <div id="drawer-backdrop" onclick="toggleMobileDrawer()" class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
+            <div id="word-list-container" class="flex-grow overflow-y-auto p-2 space-y-1 bg-slate-50/50 dark:bg-slate-900/50">
+                <!-- Injected via JavaScript -->
+            </div>
+            
+            <div class="p-2 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[9px] text-center font-bold text-slate-500">
+                Tổng cộng: <span id="count-display" class="text-blue-600 dark:text-blue-400 font-extrabold">0</span> từ vựng phân tích
+            </div>
+        </aside>
 
-            <aside id="sidebar-drawer" class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col flex-shrink-0 h-full z-50 lg:z-30 lg:static transform -translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-xl lg:shadow-none">
+        <main class="flex-grow overflow-y-auto bg-slate-100 dark:bg-slate-950 p-3 sm:p-5 md:p-8 flex flex-col justify-between" id="section-learn">
+            <div class="max-w-4xl mx-auto w-full space-y-4 sm:space-y-6">
                 
-                <div class="p-3 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 space-y-2">
-                    <div class="flex items-center justify-between lg:hidden pb-1">
-                        <span class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase">THƯ VIỆN TỪ VỰNG</span>
-                        <button onclick="toggleMobileDrawer()" class="p-1.5 text-slate-400 hover:text-slate-950 dark:hover:text-white rounded-lg text-sm">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                    <div class="relative">
-                        <input type="text" id="search-input" placeholder="Tìm kiếm nhanh 300+ từ..." 
-                            class="w-full pl-8 pr-2 py-1.5 bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-xs focus:ring-2 focus:ring-blue-400 outline-none text-slate-900 dark:text-white transition-all">
-                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-[10px]"></i>
-                    </div>
-                    <div class="flex gap-1">
-                        <select id="filter-class" class="flex-1 text-[9px] font-bold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-1 outline-none text-slate-600 dark:text-slate-300">
-                            <option value="all">Lớp chữ</option>
-                            <option value="high">Lớp Cao</option>
-                            <option value="mid">Lớp Trung</option>
-                            <option value="low">Lớp Thấp</option>
-                        </select>
-                        <select id="filter-group" class="flex-1 text-[9px] font-bold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded p-1 outline-none text-slate-600 dark:text-slate-300">
-                            <option value="all">Quy luật (Tất cả)</option>
-                            <option value="1">-ะ ➔ -ั</option>
-                            <option value="2">เ-ะ ➔ เ-็</option>
-                            <option value="3">แ-ะ ➔ แ-็</option>
-                            <option value="4">เ-อ ➔ เ-ิ</option>
-                            <option value="5">โ-ะ ➔ ∅</option>
-                            <option value="6">ัว ➔ ว</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div id="word-list-container" class="flex-grow overflow-y-auto p-2 space-y-1 bg-slate-50/50 dark:bg-slate-900/50">
-                    <!-- Injected via JavaScript -->
-                </div>
-                
-                <div class="p-2 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[9px] text-center font-bold text-slate-500">
-                    Tổng cộng: <span id="count-display" class="text-blue-600 dark:text-blue-400 font-extrabold">0</span> từ vựng phân tích
-                </div>
-            </aside>
-
-            <main class="flex-grow overflow-y-auto bg-slate-100 dark:bg-slate-950 p-3 sm:p-5 md:p-8 flex flex-col justify-between" id="section-learn">
-                <div class="max-w-4xl mx-auto w-full space-y-4 sm:space-y-6">
+                <!-- Syllable breakdown board -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 sm:p-6 md:p-8 flex flex-col justify-between min-h-[380px] sm:min-h-[440px] relative overflow-hidden">
                     
-                    <!-- Syllable breakdown board -->
-                    <div class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 sm:p-6 md:p-8 flex flex-col justify-between min-h-[380px] sm:min-h-[440px] relative overflow-hidden">
-                        
-                        <div class="w-full flex justify-between items-center mb-4 border-b border-slate-100 dark:border-slate-800 pb-3">
-                            <span class="text-[9px] sm:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">TỪ VIẾT THỰC TẾ (CHỮ CHUẨN TIẾNG THÁI)</span>
-                            <div class="flex gap-1.5">
-                                <button onclick="triggerTTS()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white dark:hover:text-white transition-all flex items-center justify-center" title="Phát âm tiếng Thái">
-                                    <i class="fa-solid fa-volume-high text-xs"></i>
-                                </button>
-                                <button id="btn-reveal-all" class="px-3 py-1 sm:px-4 sm:py-1.5 bg-slate-800 hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-full text-[9px] sm:text-[10px] font-black transition-all">HIỆN TẤT CẢ</button>
-                            </div>
-                        </div>
-
-                        <!-- Top Layer (ACTUAL orthographically correct Thai Word with character-level color mapping) -->
-                        <div class="flex-grow flex items-center justify-center py-6 sm:py-10">
-                            <!-- Horizontal baseline container preserving native stacking for nested zero-width markers -->
-                            <div id="actual-transformed-word" class="thai-font text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-black select-none flex flex-row items-end justify-center h-full tracking-wide" style="white-space: nowrap;">
-                                <!-- Injected dynamically via JS with correct letter-by-letter color styling -->
-                            </div>
-                        </div>
-
-                        <!-- Bottom Layer: 4 Interactive blocks displaying raw original syllable roots -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-slate-100 dark:border-slate-800 pt-5">
-                            
-                            <!-- Initial Consonants -->
-                            <div onclick="togglePart('consonant')" class="cursor-pointer group flex flex-col items-center">
-                                <div id="card-consonant" class="w-full h-16 sm:h-20 bg-consonant-light border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold thai-font relative overflow-hidden transition-all group-hover:border-slate-400">
-                                    <span id="val-consonant" class="color-consonant opacity-0 transition-opacity"></span>
-                                    <div id="eye-consonant" class="absolute inset-0 flex items-center justify-center bg-white/95 dark:bg-slate-800/95 text-[9px] sm:text-[10px] font-black text-slate-500 dark:text-slate-400 tracking-wider">HIỆN PHỤ ÂM ĐẦU</div>
-                                </div>
-                                <span class="text-[9px] sm:text-[10px] font-black text-slate-700 dark:text-slate-300 mt-1.5">พยัญชนะต้น</span>
-                                <span class="text-[8px] sm:text-[9px] text-slate-400 font-bold">(Phụ âm đầu gốc)</span>
-                            </div>
-
-                            <!-- Original Vowel prior to transformation -->
-                            <div onclick="togglePart('vowel')" class="cursor-pointer group flex flex-col items-center">
-                                <div id="card-vowel" class="w-full h-16 sm:h-20 bg-vowel-light border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold thai-font relative overflow-hidden transition-all group-hover:border-red-400">
-                                    <span id="val-vowel" class="color-vowel opacity-0 transition-opacity"></span>
-                                    <div id="eye-vowel" class="absolute inset-0 flex items-center justify-center bg-white/95 dark:bg-slate-800/95 text-[9px] sm:text-[10px] font-black text-red-500 dark:text-red-400 tracking-wider">HIỆN NGUYÊN ÂM GỐC</div>
-                                </div>
-                                <span class="text-[9px] sm:text-[10px] font-black text-red-600 dark:text-red-400 mt-1.5">สระต้นกำเนิด</span>
-                                <span class="text-[8px] sm:text-[9px] text-red-400 font-bold">(Nguyên âm gốc)</span>
-                            </div>
-
-                            <!-- Final Consonant -->
-                            <div onclick="togglePart('final')" class="cursor-pointer group flex flex-col items-center">
-                                <div id="card-final" class="w-full h-16 sm:h-20 bg-final-light border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold thai-font relative overflow-hidden transition-all group-hover:border-blue-400">
-                                    <span id="val-final" class="color-final opacity-0 transition-opacity"></span>
-                                    <div id="eye-final" class="absolute inset-0 flex items-center justify-center bg-white/95 dark:bg-slate-800/95 text-[9px] sm:text-[10px] font-black text-blue-500 dark:text-blue-400 tracking-wider">HIỆN ÂM CUỐI</div>
-                                </div>
-                                <span class="text-[9px] sm:text-[10px] font-black text-blue-600 dark:text-blue-400 mt-1.5">ตัวสะกด</span>
-                                <span class="text-[8px] sm:text-[9px] text-blue-400 font-bold">(Phụ âm cuối gốc)</span>
-                            </div>
-
-                            <!-- Tone Mark -->
-                            <div onclick="togglePart('tone')" class="cursor-pointer group flex flex-col items-center">
-                                <div id="card-tone" class="w-full h-16 sm:h-20 bg-tone-light border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold thai-font relative overflow-hidden transition-all group-hover:border-green-400">
-                                    <span id="val-tone" class="color-tone opacity-0 transition-opacity"></span>
-                                    <div id="eye-tone" class="absolute inset-0 flex items-center justify-center bg-white/95 dark:bg-slate-800/95 text-[9px] sm:text-[10px] font-black text-green-500 dark:text-green-400 tracking-wider">HIỆN THANH ĐIỆU</div>
-                                </div>
-                                <span class="text-[9px] sm:text-[10px] font-black text-green-600 dark:text-green-400 mt-1.5">วรรณยุกต์</span>
-                                <span class="text-[8px] sm:text-[9px] text-green-400 font-bold">(Thanh điệu gốc)</span>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <!-- Descriptive card containing word properties and academic explanation -->
-                    <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                        <div class="md:col-span-2 space-y-1.5">
-                            <div class="flex items-center gap-2">
-                                <h2 id="info-word" class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white thai-font leading-none">เจ็ด</h2>
-                                <span id="info-pinyin" class="text-sm font-extrabold text-slate-400 dark:text-slate-500"></span>
-                            </div>
-                            <p id="info-translation" class="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400"></p>
-                            <div class="flex gap-2 pt-0.5">
-                                <span id="info-class-badge" class="px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-black uppercase"></span>
-                                <span id="info-type-badge" class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded text-[8px] sm:text-[9px] font-black uppercase"></span>
-                            </div>
-                        </div>
-                        <div class="bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 rounded-xl p-3">
-                            <span class="text-[8px] sm:text-[9px] font-black text-indigo-400 dark:text-indigo-300 uppercase block mb-0.5">Phân tích học thuật THÁI DỄ HỌC</span>
-                            <p id="info-special" class="text-[10px] font-bold text-indigo-800 dark:text-indigo-200 leading-relaxed"></p>
-                        </div>
-                    </div>
-
-                    <!-- Navigation buttons -->
-                    <div class="flex gap-2 w-full pt-1">
-                        <button id="btn-prev" class="flex-1 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm">
-                            <i class="fa-solid fa-chevron-left"></i> TRƯỚC
-                        </button>
-                        <button id="btn-next" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-md shadow-blue-100 dark:shadow-none">
-                            KẾ TIẾP <i class="fa-solid fa-chevron-right"></i>
-                        </button>
-                    </div>
-
-                </div>
-            </main>
-
-            <main class="hidden flex-grow overflow-y-auto bg-slate-100 dark:bg-slate-950 p-4 md:p-8" id="section-theory">
-                <div class="max-w-4xl mx-auto space-y-6">
-                    <!-- Academic banner block -->
-                    <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 sm:p-8 rounded-3xl shadow-lg border border-indigo-500/20">
-                        <span class="text-xs font-black bg-indigo-500/30 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/30 uppercase tracking-widest">THÁI DỄ HỌC - Chuyên đề ngữ pháp</span>
-                        <h2 class="text-2xl sm:text-3xl font-black mt-3 mb-2 flex items-center gap-2">
-                            <i class="fa-solid fa-wand-magic-sparkles text-amber-400 animate-pulse"></i> Quy Luật Biến Hình & Giản Lược
-                        </h2>
-                        <p class="text-slate-300 text-sm leading-relaxed">
-                            Trong tiếng Thái, khi một âm tiết xuất hiện thêm <strong>Phụ âm cuối (ตัวสะกด)</strong>, một số nguyên âm gốc sẽ ngay lập tức bị thay đổi hình dạng (Biến hình) hoặc bị ẩn đi một phần/toàn bộ (Giản lược) nhằm tối ưu hoá cấu trúc chữ viết. Hãy click nút <span class="text-amber-300 font-bold">Học thử</span> dưới mỗi quy luật để chuyển ngay sang chế độ phân rã trực quan.
-                        </p>
-                    </div>
-
-                    <!-- Rules layout grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
-                        <!-- Rule 1: -ะ -> -ั -->
-                        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3 hover:shadow-md transition-all">
-                            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                                <h3 class="font-black text-slate-800 dark:text-slate-200 text-sm flex items-center gap-1.5">
-                                    <span class="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">1</span>
-                                    Quy luật: -ะ ➔ -ั (Mai Han-Akat)
-                                </h3>
-                                <span class="text-[9px] font-black bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded uppercase">Biến hình</span>
-                            </div>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                Khi nguyên âm ngắn <strong>-ะ</strong> kết hợp với một phụ âm cuối, dấu <strong>-ะ</strong> ở đuôi sẽ thu gọn và bay lên trên đầu phụ âm đầu thành dấu á <strong>-ั (Mai Han-Akat)</strong>.
-                            </p>
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl text-xs space-y-2">
-                                <div class="flex flex-col gap-1.5">
-                                    <div class="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
-                                        <span class="font-bold text-slate-800 dark:text-slate-200"><span class="thai-font text-sm">ร + -ะ + ก</span> ➔ <span class="thai-font text-sm font-black text-red-600 dark:text-red-400">รัก</span> <span class="text-slate-400 text-[10px] dark:text-slate-500">[rak]</span></span>
-                                        <button onclick="loadWordFromTheory('รัก')" class="text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-md hover:bg-blue-600 hover:text-white transition-all">Học thử <i class="fa-solid fa-square-arrow-up-right"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Rule 2: เ-ะ -> เ-็ -->
-                        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3 hover:shadow-md transition-all">
-                            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                                <h3 class="font-black text-slate-800 dark:text-slate-200 text-sm flex items-center gap-1.5">
-                                    <span class="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">2</span>
-                                    Quy luật: เ-ะ ➔ เ-็ (Mai Taikhú)
-                                </h3>
-                                <span class="text-[9px] font-black bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded uppercase">Biến hình</span>
-                            </div>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                Khi nguyên âm ngắn <strong>เ-ะ</strong> gặp phụ âm cuối, ký tự đuôi <strong>-ะ</strong> biến chuyển nhảy lên đỉnh đầu phụ âm đầu thành dấu <strong>เ-็ (Mai Taikhú)</strong>.
-                            </p>
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl text-xs space-y-2">
-                                <div class="flex flex-col gap-1.5">
-                                    <div class="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
-                                        <span class="font-bold text-slate-800 dark:text-slate-200"><span class="thai-font text-sm">เ-ะ + จ + ด</span> ➔ <span class="thai-font text-sm font-black text-red-600 dark:text-red-400">เจ็ด</span> <span class="text-slate-400 text-[10px] dark:text-slate-500">[chet]</span></span>
-                                        <button onclick="loadWordFromTheory('เจ็ด')" class="text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-md hover:bg-blue-600 hover:text-white transition-all">Học thử <i class="fa-solid fa-square-arrow-up-right"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Rule 3: เ-อ -> เ-ิ -->
-                        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3 hover:shadow-md transition-all">
-                            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                                <h3 class="font-black text-slate-800 dark:text-slate-200 text-sm flex items-center gap-1.5">
-                                    <span class="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">3</span>
-                                    Quy luật: เ-อ ➔ เ-ิ / เ-
-                                </h3>
-                                <span class="text-[9px] font-black bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded uppercase">Đặc biệt</span>
-                            </div>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                Khi gặp hầu hết các phụ âm cuối thông thường, ký tự <strong>อ</strong> biến thành nguyên âm trên <strong>ิ</strong> ➔ <strong>เ-ิ</strong>. Nhưng riêng với phụ âm cuối đặc biệt <strong>ย</strong>, chữ <strong>อ</strong> sẽ biến mất hoàn toàn ➔ <strong>เ-</strong>.
-                            </p>
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl text-xs space-y-2">
-                                <div class="flex flex-col gap-1.5">
-                                    <div class="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
-                                        <span class="font-bold text-slate-800 dark:text-slate-200"><span class="thai-font text-sm">เ-อ + ด + น</span> ➔ <span class="thai-font text-sm font-black text-red-600 dark:text-red-400">เดิน</span> <span class="text-slate-400 text-[10px] dark:text-slate-500">[doen]</span></span>
-                                        <button onclick="loadWordFromTheory('เดิน')" class="text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-md hover:bg-blue-600 hover:text-white transition-all">Học thử <i class="fa-solid fa-square-arrow-up-right"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Rule 4: โ-ะ -> Ẩn hoàn toàn -->
-                        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3 hover:shadow-md transition-all">
-                            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                                <h3 class="font-black text-slate-800 dark:text-slate-200 text-sm flex items-center gap-1.5">
-                                    <span class="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">4</span>
-                                    Quy luật: โ-ะ ➔ Ẩn hoàn toàn
-                                </h3>
-                                <span class="text-[9px] font-black bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 px-2 py-0.5 rounded uppercase">Giản lược</span>
-                            </div>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                Khi có phụ âm cuối, cả ký tự <strong>โ-</strong> và <strong>-ะ</strong> của nguyên âm ngắn <strong>โ-ะ</strong> biến mất hoàn toàn. Người đọc tự ngầm hiểu âm khi thấy hai phụ âm liền kề.
-                            </p>
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl text-xs space-y-2">
-                                <div class="flex flex-col gap-1.5">
-                                    <div class="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
-                                        <span class="font-bold text-slate-800 dark:text-slate-200"><span class="thai-font text-sm">น + โ-ะ + ก</span> ➔ <span class="thai-font text-sm font-black text-red-600 dark:text-red-400">นก</span> <span class="text-slate-400 text-[10px] dark:text-slate-500">[nok]</span></span>
-                                        <button onclick="loadWordFromTheory('นก')" class="text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-md hover:bg-blue-600 hover:text-white transition-all">Học thử <i class="fa-solid fa-square-arrow-up-right"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </main>
-
-            <section id="section-quiz" class="hidden flex-grow flex items-center justify-center p-4 bg-slate-100 dark:bg-slate-950 overflow-y-auto w-full">
-                <div id="quiz-start-screen" class="bg-white dark:bg-slate-900 p-6 sm:p-10 rounded-2xl sm:rounded-3xl shadow-xl text-center max-w-md w-full border border-slate-200 dark:border-slate-800 space-y-6">
-                    <span class="text-5xl mb-4 block animate-bounce">🎯</span>
-                    <div>
-                        <h3 class="text-xl font-black text-slate-800 dark:text-white mb-2">Thử Thách Phản Xạ Âm Tiết</h3>
-                        <p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
-                            Kiểm tra khả năng nhận diện cấu trúc nguyên âm gốc và các hiện tượng biến đổi của hơn 300 từ vựng. Đạt 80/100 điểm để nhận chứng nhận THÁI DỄ HỌC!
-                        </p>
-                    </div>
-                    <button onclick="startNewQuizSession()" class="w-full py-3.5 bg-blue-600 text-white rounded-xl text-xs font-black hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 dark:shadow-none">BẮT ĐẦU THỬ THÁCH</button>
-                </div>
-
-                <div id="quiz-play-screen" class="hidden bg-white dark:bg-slate-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl max-w-lg w-full border border-slate-200 dark:border-slate-800 space-y-5">
-                    <div class="flex justify-between items-center text-xs font-black text-slate-600 dark:text-slate-400">
-                        <span id="quiz-question-counter" class="bg-slate-100 dark:bg-slate-850 px-2.5 py-1 rounded-full">Câu hỏi: 1/10</span>
-                        <span id="quiz-score-counter" class="text-green-600 dark:text-green-400 flex items-center gap-1"><i class="fa-solid fa-star"></i> Điểm: 0</span>
-                    </div>
-                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                        <div id="quiz-progress-bar" class="bg-blue-600 h-full transition-all duration-300" style="width: 10%"></div>
-                    </div>
-
-                    <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 text-center space-y-3">
-                        <span id="quiz-question-type" class="text-[9px] font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 px-2.5 py-1 rounded-full uppercase tracking-wider">PHÂN TÍCH NGUYÊN ÂM GỐC</span>
-                        <h4 id="quiz-question-text" class="text-sm font-bold text-slate-700 dark:text-slate-300">Nguyên âm GỐC chưa biến dạng của từ này là gì?</h4>
-                        
-                        <div class="flex items-center justify-center gap-3">
-                            <div id="quiz-thai-word" class="thai-font text-5xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-wide select-none py-2">เจ็ด</div>
-                            <button id="quiz-btn-listen" onclick="listenQuizWord()" class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500 transition-all shadow-sm">
+                    <div class="w-full flex justify-between items-center mb-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <span class="text-[9px] sm:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">TỪ VIẾT THỰC TẾ (CHỮ CHUẨN TIẾNG THÁI)</span>
+                        <div class="flex gap-1.5">
+                            <button onclick="triggerTTS()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white dark:hover:text-white transition-all flex items-center justify-center" title="Phát âm tiếng Thái">
                                 <i class="fa-solid fa-volume-high text-xs"></i>
                             </button>
+                            <button id="btn-reveal-all" class="px-3 py-1 sm:px-4 sm:py-1.5 bg-slate-800 hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-full text-[9px] sm:text-[10px] font-black transition-all">HIỆN TẤT CẢ</button>
                         </div>
+                    </div>
+
+                    <!-- Top Layer (ACTUAL orthographically correct Thai Word with character-level color mapping) -->
+                    <div class="flex-grow flex items-center justify-center py-6 sm:py-10">
+                        <!-- Horizontal baseline container preserving native stacking for nested zero-width markers -->
+                        <div id="actual-transformed-word" class="thai-font text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-black select-none flex flex-row items-end justify-center h-full tracking-wide" style="white-space: nowrap;">
+                            <!-- Injected dynamically via JS with correct letter-by-letter color styling -->
+                        </div>
+                    </div>
+
+                    <!-- Bottom Layer: 4 Interactive blocks displaying raw original syllable roots -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-slate-100 dark:border-slate-800 pt-5">
                         
-                        <p id="quiz-word-translation" class="text-[10px] text-slate-400 dark:text-slate-500 font-bold">[ chet ] - Số bảy (7) 7️⃣</p>
-                    </div>
+                        <!-- Initial Consonants -->
+                        <div onclick="togglePart('consonant')" class="cursor-pointer group flex flex-col items-center">
+                            <div id="card-consonant" class="w-full h-16 sm:h-20 bg-consonant-light border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold thai-font relative overflow-hidden transition-all group-hover:border-slate-400">
+                                <span id="val-consonant" class="color-consonant opacity-0 transition-opacity"></span>
+                                <div id="eye-consonant" class="absolute inset-0 flex items-center justify-center bg-white/95 dark:bg-slate-800/95 text-[9px] sm:text-[10px] font-black text-slate-500 dark:text-slate-400 tracking-wider">HIỆN PHỤ ÂM ĐẦU</div>
+                            </div>
+                            <span class="text-[9px] sm:text-[10px] font-black text-slate-700 dark:text-slate-300 mt-1.5">พยัญชนะต้น</span>
+                            <span class="text-[8px] sm:text-[9px] text-slate-400 font-bold">(Phụ âm đầu gốc)</span>
+                        </div>
 
-                    <div id="quiz-options-grid" class="grid grid-cols-2 gap-3">
-                        <!-- Options injected dynamically -->
-                    </div>
+                        <!-- Original Vowel prior to transformation -->
+                        <div onclick="togglePart('vowel')" class="cursor-pointer group flex flex-col items-center">
+                            <div id="card-vowel" class="w-full h-16 sm:h-20 bg-vowel-light border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold thai-font relative overflow-hidden transition-all group-hover:border-red-400">
+                                <span id="val-vowel" class="color-vowel opacity-0 transition-opacity"></span>
+                                <div id="eye-vowel" class="absolute inset-0 flex items-center justify-center bg-white/95 dark:bg-slate-800/95 text-[9px] sm:text-[10px] font-black text-red-500 dark:text-red-400 tracking-wider">HIỆN NGUYÊN ÂM GỐC</div>
+                            </div>
+                            <span class="text-[9px] sm:text-[10px] font-black text-red-600 dark:text-red-400 mt-1.5">สระต้นกำเนิด</span>
+                            <span class="text-[8px] sm:text-[9px] text-red-400 font-bold">(Nguyên âm gốc)</span>
+                        </div>
 
-                    <div id="quiz-feedback" class="hidden rounded-xl p-3 text-xs space-y-1">
-                        <span class="font-extrabold flex items-center gap-1"></span>
-                        <p id="quiz-explanation-text" class="leading-relaxed font-semibold"></p>
-                    </div>
+                        <!-- Final Consonant -->
+                        <div onclick="togglePart('final')" class="cursor-pointer group flex flex-col items-center">
+                            <div id="card-final" class="w-full h-16 sm:h-20 bg-final-light border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold thai-font relative overflow-hidden transition-all group-hover:border-blue-400">
+                                <span id="val-final" class="color-final opacity-0 transition-opacity"></span>
+                                <div id="eye-final" class="absolute inset-0 flex items-center justify-center bg-white/95 dark:bg-slate-800/95 text-[9px] sm:text-[10px] font-black text-blue-500 dark:text-blue-400 tracking-wider">HIỆN ÂM CUỐI</div>
+                            </div>
+                            <span class="text-[9px] sm:text-[10px] font-black text-blue-600 dark:text-blue-400 mt-1.5">ตัวสะกด</span>
+                            <span class="text-[8px] sm:text-[9px] text-blue-400 font-bold">(Phụ âm cuối gốc)</span>
+                        </div>
 
-                    <button id="quiz-btn-next" onclick="nextQuizQuestion()" class="hidden w-full py-3 bg-slate-800 hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5">
-                        TIẾP THEO <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <!-- Tone Mark -->
+                        <div onclick="togglePart('tone')" class="cursor-pointer group flex flex-col items-center">
+                            <div id="card-tone" class="w-full h-16 sm:h-20 bg-tone-light border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold thai-font relative overflow-hidden transition-all group-hover:border-green-400">
+                                <span id="val-tone" class="color-tone opacity-0 transition-opacity"></span>
+                                <div id="eye-tone" class="absolute inset-0 flex items-center justify-center bg-white/95 dark:bg-slate-800/95 text-[9px] sm:text-[10px] font-black text-green-500 dark:text-green-400 tracking-wider">HIỆN THANH ĐIỆU</div>
+                            </div>
+                            <span class="text-[9px] sm:text-[10px] font-black text-green-600 dark:text-green-400 mt-1.5">วรรณยุกต์</span>
+                            <span class="text-[8px] sm:text-[9px] text-green-400 font-bold">(Thanh điệu gốc)</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Descriptive card containing word properties and academic explanation -->
+                <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <div class="md:col-span-2 space-y-1.5">
+                        <div class="flex items-center gap-2">
+                            <h2 id="info-word" class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white thai-font leading-none">เจ็ด</h2>
+                            <span id="info-pinyin" class="text-sm font-extrabold text-slate-400 dark:text-slate-500"></span>
+                        </div>
+                        <p id="info-translation" class="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400"></p>
+                        <div class="flex gap-2 pt-0.5">
+                            <span id="info-class-badge" class="px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-black uppercase"></span>
+                            <span id="info-type-badge" class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded text-[8px] sm:text-[9px] font-black uppercase"></span>
+                        </div>
+                    </div>
+                    <div class="bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 rounded-xl p-3">
+                        <span class="text-[8px] sm:text-[9px] font-black text-indigo-400 dark:text-indigo-300 uppercase block mb-0.5">Phân tích học thuật THÁI DỄ HỌC</span>
+                        <p id="info-special" class="text-[10px] font-bold text-indigo-800 dark:text-indigo-200 leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="flex gap-2 w-full pt-1">
+                    <button id="btn-prev" class="flex-1 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-chevron-left"></i> TRƯỚC
+                    </button>
+                    <button id="btn-next" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-md shadow-blue-100 dark:shadow-none">
+                        KẾ TIẾP <i class="fa-solid fa-chevron-right"></i>
                     </button>
                 </div>
 
-                <div id="quiz-result-screen" class="hidden bg-white dark:bg-slate-900 p-6 sm:p-10 rounded-2xl sm:rounded-3xl shadow-xl max-w-lg w-full border border-slate-200 dark:border-slate-800 text-center space-y-6">
-                    <div>
-                        <span id="quiz-result-emoji" class="text-6xl block">🏆</span>
-                        <h3 class="text-xl font-black text-slate-800 dark:text-white mt-4">KẾT QUẢ THỬ THÁCH</h3>
-                        <p id="quiz-result-score" class="text-3xl font-black text-blue-600 dark:text-blue-400 mt-2">80/100 Điểm</p>
-                        <p id="quiz-result-msg" class="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">Xuất sắc! Bạn nắm bài rất tốt.</p>
-                    </div>
+            </div>
+        </main>
 
-                    <div class="text-left space-y-2">
-                        <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">BẢNG ÔN TẬP QUY LUẬT NHANH</span>
-                        <div id="quiz-review-list" class="max-h-48 overflow-y-auto space-y-1.5 border border-slate-100 dark:border-slate-850 rounded-xl p-2 bg-slate-50 dark:bg-slate-900/50">
-                            <!-- Review list injected dynamically -->
+        <main class="hidden flex-grow overflow-y-auto bg-slate-100 dark:bg-slate-950 p-4 md:p-8" id="section-theory">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <!-- Academic banner block -->
+                <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 sm:p-8 rounded-3xl shadow-lg border border-indigo-500/20">
+                    <span class="text-xs font-black bg-indigo-500/30 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/30 uppercase tracking-widest">THÁI DỄ HỌC - Chuyên đề ngữ pháp</span>
+                    <h2 class="text-2xl sm:text-3xl font-black mt-3 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400 animate-pulse"></i> Quy Luật Biến Hình & Giản Lược
+                    </h2>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Trong tiếng Thái, khi một âm tiết xuất hiện thêm <strong>Phụ âm cuối (ตัวสะกด)</strong>, một số nguyên âm gốc sẽ ngay lập tức bị thay đổi hình dạng (Biến hình) hoặc bị ẩn đi một phần/toàn bộ (Giản lược) nhằm tối ưu hoá cấu trúc chữ viết. Hãy click nút <span class="text-amber-300 font-bold">Học thử</span> dưới mỗi quy luật để chuyển ngay sang chế độ phân rã trực quan.
+                    </p>
+                </div>
+
+                <!-- Rules layout grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Rule 1: -ะ -> -ั -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3 hover:shadow-md transition-all">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                            <h3 class="font-black text-slate-800 dark:text-slate-200 text-sm flex items-center gap-1.5">
+                                <span class="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">1</span>
+                                Quy luật: -ะ ➔ -ั (Mai Han-Akat)
+                            </h3>
+                            <span class="text-[9px] font-black bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded uppercase">Biến hình</span>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Khi nguyên âm ngắn <strong>-ะ</strong> kết hợp với một phụ âm cuối, dấu <strong>-ะ</strong> ở đuôi sẽ thu gọn và bay lên trên đầu phụ âm đầu thành dấu á <strong>-ั (Mai Han-Akat)</strong>.
+                        </p>
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl text-xs space-y-2">
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                    <span class="font-bold text-slate-800 dark:text-slate-200"><span class="thai-font text-sm">ร + -ะ + ก</span> ➔ <span class="thai-font text-sm font-black text-red-600 dark:text-red-400">รัก</span> <span class="text-slate-400 text-[10px] dark:text-slate-500">[rak]</span></span>
+                                    <button onclick="loadWordFromTheory('รัก')" class="text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-md hover:bg-blue-600 hover:text-white transition-all">Học thử <i class="fa-solid fa-square-arrow-up-right"></i></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="flex gap-2">
-                        <button onclick="switchTab('learn')" class="flex-1 py-3 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-extrabold rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-slate-850 transition-all">TRA CỨU LẠI</button>
-                        <button onclick="startNewQuizSession()" class="flex-1 py-3 bg-blue-600 text-white font-extrabold rounded-xl text-xs hover:bg-blue-700 transition-all shadow-md shadow-blue-100 dark:shadow-none">LUYỆN LẠI</button>
+                    <!-- Rule 2: เ-ะ -> เ-็ -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3 hover:shadow-md transition-all">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                            <h3 class="font-black text-slate-800 dark:text-slate-200 text-sm flex items-center gap-1.5">
+                                <span class="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">2</span>
+                                Quy luật: เ-ะ ➔ เ-็ (Mai Taikhú)
+                            </h3>
+                            <span class="text-[9px] font-black bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded uppercase">Biến hình</span>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Khi nguyên âm ngắn <strong>เ-ะ</strong> gặp phụ âm cuối, ký tự đuôi <strong>-ะ</strong> biến chuyển nhảy lên đỉnh đầu phụ âm đầu thành dấu <strong>เ-็ (Mai Taikhú)</strong>.
+                        </p>
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl text-xs space-y-2">
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                    <span class="font-bold text-slate-800 dark:text-slate-200"><span class="thai-font text-sm">เ-ะ + จ + ด</span> ➔ <span class="thai-font text-sm font-black text-red-600 dark:text-red-400">เจ็ด</span> <span class="text-slate-400 text-[10px] dark:text-slate-500">[chet]</span></span>
+                                    <button onclick="loadWordFromTheory('เจ็ด')" class="text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-md hover:bg-blue-600 hover:text-white transition-all">Học thử <i class="fa-solid fa-square-arrow-up-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rule 3: เ-อ -> เ-ิ -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3 hover:shadow-md transition-all">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                            <h3 class="font-black text-slate-800 dark:text-slate-200 text-sm flex items-center gap-1.5">
+                                <span class="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">3</span>
+                                Quy luật: เ-อ ➔ เ-ิ / เ-
+                            </h3>
+                            <span class="text-[9px] font-black bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded uppercase">Đặc biệt</span>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Khi gặp hầu hết các phụ âm cuối thông thường, ký tự <strong>อ</strong> biến thành nguyên âm trên <strong>ิ</strong> ➔ <strong>เ-ิ</strong>. Nhưng riêng với phụ âm cuối đặc biệt <strong>ย</strong>, chữ <strong>อ</strong> sẽ biến mất hoàn toàn ➔ <strong>เ-</strong>.
+                        </p>
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl text-xs space-y-2">
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                    <span class="font-bold text-slate-800 dark:text-slate-200"><span class="thai-font text-sm">เ-อ + ด + น</span> ➔ <span class="thai-font text-sm font-black text-red-600 dark:text-red-400">เดิน</span> <span class="text-slate-400 text-[10px] dark:text-slate-500">[doen]</span></span>
+                                    <button onclick="loadWordFromTheory('เดิน')" class="text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-md hover:bg-blue-600 hover:text-white transition-all">Học thử <i class="fa-solid fa-square-arrow-up-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rule 4: โ-ะ -> Ẩn hoàn toàn -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3 hover:shadow-md transition-all">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                            <h3 class="font-black text-slate-800 dark:text-slate-200 text-sm flex items-center gap-1.5">
+                                <span class="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">4</span>
+                                Quy luật: โ-ะ ➔ Ẩn hoàn toàn
+                            </h3>
+                            <span class="text-[9px] font-black bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 px-2 py-0.5 rounded uppercase">Giản lược</span>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Khi có phụ âm cuối, cả ký tự <strong>โ-</strong> và <strong>-ะ</strong> của nguyên âm ngắn <strong>โ-ะ</strong> biến mất hoàn toàn. Người đọc tự ngầm hiểu âm khi thấy hai phụ âm liền kề.
+                        </p>
+                        <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl text-xs space-y-2">
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex items-center justify-between bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                    <span class="font-bold text-slate-800 dark:text-slate-200"><span class="thai-font text-sm">น + โ-ะ + ก</span> ➔ <span class="thai-font text-sm font-black text-red-600 dark:text-red-400">นก</span> <span class="text-slate-400 text-[10px] dark:text-slate-500">[nok]</span></span>
+                                    <button onclick="loadWordFromTheory('นก')" class="text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-md hover:bg-blue-600 hover:text-white transition-all">Học thử <i class="fa-solid fa-square-arrow-up-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+
+        <section id="section-quiz" class="hidden flex-grow flex items-center justify-center p-4 bg-slate-100 dark:bg-slate-950 overflow-y-auto w-full">
+            <div id="quiz-start-screen" class="bg-white dark:bg-slate-900 p-6 sm:p-10 rounded-2xl sm:rounded-3xl shadow-xl text-center max-w-md w-full border border-slate-200 dark:border-slate-800 space-y-6">
+                <span class="text-5xl mb-4 block animate-bounce">🎯</span>
+                <div>
+                    <h3 class="text-xl font-black text-slate-800 dark:text-white mb-2">Thử Thách Phản Xạ Âm Tiết</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
+                        Kiểm tra khả năng nhận diện cấu trúc nguyên âm gốc và các hiện tượng biến đổi của hơn 300 từ vựng. Đạt 80/100 điểm để nhận chứng nhận THÁI DỄ HỌC!
+                    </p>
+                </div>
+                <button onclick="startNewQuizSession()" class="w-full py-3.5 bg-blue-600 text-white rounded-xl text-xs font-black hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 dark:shadow-none">BẮT ĐẦU THỬ THÁCH</button>
+            </div>
+
+            <div id="quiz-play-screen" class="hidden bg-white dark:bg-slate-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl max-w-lg w-full border border-slate-200 dark:border-slate-800 space-y-5">
+                <div class="flex justify-between items-center text-xs font-black text-slate-600 dark:text-slate-400">
+                    <span id="quiz-question-counter" class="bg-slate-100 dark:bg-slate-850 px-2.5 py-1 rounded-full">Câu hỏi: 1/10</span>
+                    <span id="quiz-score-counter" class="text-green-600 dark:text-green-400 flex items-center gap-1"><i class="fa-solid fa-star"></i> Điểm: 0</span>
+                </div>
+                <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="quiz-progress-bar" class="bg-blue-600 h-full transition-all duration-300" style="width: 10%"></div>
+                </div>
+
+                <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 text-center space-y-3">
+                    <span id="quiz-question-type" class="text-[9px] font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 px-2.5 py-1 rounded-full uppercase tracking-wider">PHÂN TÍCH NGUYÊN ÂM GỐC</span>
+                    <h4 id="quiz-question-text" class="text-sm font-bold text-slate-700 dark:text-slate-300">Nguyên âm GỐC chưa biến dạng của từ này là gì?</h4>
+                    
+                    <div class="flex items-center justify-center gap-3">
+                        <div id="quiz-thai-word" class="thai-font text-5xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-wide select-none py-2">เจ็ด</div>
+                        <button id="quiz-btn-listen" onclick="listenQuizWord()" class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500 transition-all shadow-sm">
+                            <i class="fa-solid fa-volume-high text-xs"></i>
+                        </button>
+                    </div>
+                    
+                    <p id="quiz-word-translation" class="text-[10px] text-slate-400 dark:text-slate-500 font-bold">[ chet ] - Số bảy (7) 7️⃣</p>
+                </div>
+
+                <div id="quiz-options-grid" class="grid grid-cols-2 gap-3">
+                    <!-- Options injected dynamically -->
+                </div>
+
+                <div id="quiz-feedback" class="hidden rounded-xl p-3 text-xs space-y-1">
+                    <span class="font-extrabold flex items-center gap-1"></span>
+                    <p id="quiz-explanation-text" class="leading-relaxed font-semibold"></p>
+                </div>
+
+                <button id="quiz-btn-next" onclick="nextQuizQuestion()" class="hidden w-full py-3 bg-slate-800 hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5">
+                    TIẾP THEO <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+            </div>
+
+            <div id="quiz-result-screen" class="hidden bg-white dark:bg-slate-900 p-6 sm:p-10 rounded-2xl sm:rounded-3xl shadow-xl max-w-lg w-full border border-slate-200 dark:border-slate-800 text-center space-y-6">
+                <div>
+                    <span id="quiz-result-emoji" class="text-6xl block">🏆</span>
+                    <h3 class="text-xl font-black text-slate-800 dark:text-white mt-4">KẾT QUẢ THỬ THÁCH</h3>
+                    <p id="quiz-result-score" class="text-3xl font-black text-blue-600 dark:text-blue-400 mt-2">80/100 Điểm</p>
+                    <p id="quiz-result-msg" class="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">Xuất sắc! Bạn nắm bài rất tốt.</p>
+                </div>
+
+                <div class="text-left space-y-2">
+                    <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">BẢNG ÔN TẬP QUY LUẬT NHANH</span>
+                    <div id="quiz-review-list" class="max-h-48 overflow-y-auto space-y-1.5 border border-slate-100 dark:border-slate-850 rounded-xl p-2 bg-slate-50 dark:bg-slate-900/50">
+                        <!-- Review list injected dynamically -->
                     </div>
                 </div>
-            </section>
 
-        </div>
+                <div class="flex gap-2">
+                    <button onclick="switchTab('learn')" class="flex-1 py-3 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-extrabold rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-slate-850 transition-all">TRA CỨU LẠI</button>
+                    <button onclick="startNewQuizSession()" class="flex-1 py-3 bg-blue-600 text-white font-extrabold rounded-xl text-xs hover:bg-blue-700 transition-all shadow-md shadow-blue-100 dark:shadow-none">LUYỆN LẠI</button>
+                </div>
+            </div>
+        </section>
+
     </div>
-
-    <script>
-        // IIFE execution for seamless authentication checking before components initialize
-        (function() {
-            const authStatus = localStorage.getItem('auth_status');
-            if (authStatus === 'true') {
-                document.write('<style>#login-screen { display: none !important; } #app-content { display: flex !important; }</style>');
-            }
-        })();
-    </script>
 
     <script>
         const words = [
@@ -500,72 +457,137 @@
             {"id":3,"group":1,"word":"จับ","pinyin":"chap","vowel":"-ะ","translation":"Bắt lấy, nắm lấy 👮","class":"mid","note":"Nguyên âm ngắn -ะ chuyển lên trên thành -ั khi kết hợp âm khép băm บ.","roots":{"consonant":"จ","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
             {"id":4,"group":1,"word":"ขับ","pinyin":"khap","vowel":"-ะ","translation":"Lái (xe), xua đuổi 🚗","class":"high","note":"Nguyên âm -ะ thu gọn thành á (-ั) trên phụ âm ข trước âm khép บ.","roots":{"consonant":"ข","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
             {"id":5,"group":1,"word":"พัด","pinyin":"phat","vowel":"-ะ","translation":"Quạt gió, thổi mát 🪭","class":"low","note":"Ký tự á (-ั) thay thế cho đuôi -ะ khi xuất hiện âm khép cuối ด.","roots":{"consonant":"พ","vowel":"-ะ","final":"ด","tone":"-"},"map":"CVF"},
-            {"id":6,"group":1,"word":"จัด","pinyin":"chat","vowel":"-ะ","translation":"Sắp xếp, tổ chức 🗂️","class":"mid","note":"Nguyên âm gốc -ะ biến hình thành ั khi kết thúc bằng phụ âm cuối ด. Thanh Huyền.","roots":{"consonant":"จ","vowel":"-ะ","final":"ด","tone":""},"slots":{"leadVowel":"","consonant":"จ","vowelTop":"ั","maiTaikhu":"","tone":"","vowelBottom":"","vowelRight":"","final":"ด"}},
-            {"id":7,"group":1,"word":"ผัก","pinyin":"phàk","translation":"Rau xanh 🥦","class":"high","note":"Nguyên âm gốc -ะ biến hình thành ั khi kết thúc bằng phụ âm cuối ก. Thanh Huyền.","roots":{"consonant":"ผ","vowel":"-ะ","final":"ก","tone":""},"slots":{"leadVowel":"","consonant":"ผ","vowelTop":"ั","maiTaikhu":"","tone":"","vowelBottom":"","vowelRight":"","final":"ก"}},
-            {"id":8,"group":1,"word":"หัก","pinyin":"hàk","translation":"Bị gãy, bẻ gãy 🪵","class":"high","note":"Nguyên âm gốc -ะ biến hình thành ั khi kết thúc bằng phụ âm cuối ก. Thanh Huyền.","roots":{"consonant":"ห","vowel":"-ะ","final":"ก","tone":""},"slots":{"leadVowel":"","consonant":"ห","vowelTop":"ั","maiTaikhu":"","tone":"","vowelBottom":"","vowelRight":"","final":"ก"}},
-            {"id":9,"group":1,"word":"ฝัน","pinyin":"fǎn","translation":"Mơ ước, giấc mơ 😴","class":"high","note":"Nguyên âm gốc -ะ biến hình thành ั khi kết thúc bằng phụ âm cuối น. Thanh Hỏi.","roots":{"consonant":"ฝ","vowel":"-ะ","final":"น","tone":""},"slots":{"leadVowel":"","consonant":"ฝ","vowelTop":"ั","maiTaikhu":"","tone":"","vowelBottom":"","vowelRight":"","final":"น"}},
+            {"id":6,"group":1,"word":"จัด","pinyin":"chat","vowel":"-ะ","translation":"Sắp xếp, tổ chức 🗂️","class":"mid","note":"Nguyên âm ngắn -ะ biến chuyển thành -ั đứng trên đầu phụ âm đầu จ.","roots":{"consonant":"จ","vowel":"-ะ","final":"ด","tone":"-"},"map":"CVF"},
+            {"id":7,"group":1,"word":"มัด","pinyin":"mat","vowel":"-ะ","translation":"Trói, cột chặt 🎀","class":"low","note":"Dấu -ะ co lại nhảy lên đỉnh chữ thành -ั trước âm khép cuối ด.","roots":{"consonant":"ม","vowel":"-ะ","final":"ด","tone":"-"},"map":"CVF"},
+            {"id":8,"group":1,"word":"กัด","pinyin":"kat","vowel":"-ะ","translation":"Cắn, gặm 🐕","class":"mid","note":"Nguyên âm -ะ biến chuyển thành á (-ั) trên đầu phụ âm đầu ก.","roots":{"consonant":"ก","vowel":"-ะ","final":"ด","tone":"-"},"map":"CVF"},
+            {"id":9,"group":1,"word":"ซัก","pinyin":"sak","vowel":"-ะ","translation":"Giặt giũ (quần áo) 🧺","class":"low","note":"Biến hình -ะ thành -ั do xuất hiện âm cuối chặn ก.","roots":{"consonant":"ซ","vowel":"-ะ","final":"ก","tone":"-"},"map":"CVF"},
+            {"id":10,"group":1,"word":"ทัก","pinyin":"thak","vowel":"-ะ","translation":"Chào hỏi, lên tiếng 💬","class":"low","note":"Sử dụng dấu á -ั để thay thế nguyên âm ngắn -ะ khi có âm khép ก.","roots":{"consonant":"ท","vowel":"-ะ","final":"ก","tone":"-"},"map":"CVF"},
+            {"id":11,"group":1,"word":"ผัก","pinyin":"phak","vowel":"-ะ","translation":"Rau xanh, thực vật 🥦","class":"high","note":"Dấu -ะ đổi sang vị trí phía trên âm đầu thành -ั do có phụ âm ก.","roots":{"consonant":"ผ","vowel":"-ะ","final":"ก","tone":"-"},"map":"CVF"},
+            {"id":12,"group":1,"word":"พัก","pinyin":"phak","vowel":"-ะ","translation":"Nghỉ tạm, trú ngụ 🛋️","class":"low","note":"Nguyên âm ngắn -ะ chuyển thành á -ั trên phụ âm พ trước âm cuối ก.","roots":{"consonant":"พ","vowel":"-ะ","final":"ก","tone":"-"},"map":"CVF"},
+            {"id":13,"group":1,"word":"ฟัง","pinyin":"fang","vowel":"-ะ","translation":"Nghe, lắng nghe 🎧","class":"low","note":"Nguyên âm gốc -ะ đổi vị trí thành á -ั trên đầu phụ âm ฟ.","roots":{"consonant":"ฟ","vowel":"-ะ","final":"ง","tone":"-"},"map":"CVF"},
+            {"id":14,"group":1,"word":"ดัง","pinyin":"dang","vowel":"-ะ","translation":"Nổi tiếng / To tiếng 🔊","class":"mid","note":"Dấu á -ั thay thế cho đuôi -ะ khi đứng trước phụ âm mũi ง.","roots":{"consonant":"ด","vowel":"-ะ","final":"ง","tone":"-"},"map":"CVF"},
+            {"id":15,"group":1,"word":"ยัง","pinyin":"yang","vowel":"-ะ","translation":"Vẫn còn, chưa ⏳","class":"low","note":"Nguyên âm gốc -ะ đổi thành -ั trước âm cuối ง.","roots":{"consonant":"ย","vowel":"-ะ","final":"ง","tone":"-"},"map":"CVF"},
+            {"id":16,"group":1,"word":"ฝัง","pinyin":"fang","vowel":"-ะ","translation":"Chôn cất, khắc sâu ⚰️","class":"high","note":"Dấu -ะ đổi vị trí thành á -ั trên đầu phụ âm ฝ trước ง.","roots":{"consonant":"ฝ","vowel":"-ะ","final":"ง","tone":"-"},"map":"CVF"},
+            {"id":17,"group":1,"word":"สั่ง","pinyin":"sang","vowel":"-ะ","translation":"Ra lệnh, gọi món 📋","class":"high","note":"Chứa phụ âm đầu ส, nguyên âm biến hình -ะ -> -ั, thanh điệu Mai Ek (่).","roots":{"consonant":"ส","vowel":"-ะ","final":"ง","tone":"่"},"map":"CVTF"},
+            {"id":18,"group":1,"word":"นั่ง","pinyin":"nang","vowel":"-ะ","translation":"Ngồi xuống 🪑","class":"low","note":"Từ chứa nguyên âm ngắn -ะ biến đổi thành á -ั có dấu thanh Mai Ek.","roots":{"consonant":"น","vowel":"-ะ","final":"ง","tone":"่"},"map":"CVTF"},
+            {"id":19,"group":1,"word":"หวัง","pinyin":"wang","vowel":"-ะ","translation":"Hy vọng, ước mơ 🌠","class":"high","note":"Chứa cụm phụ âm ghép หว. Dấu -ั được hiển thị trên phụ âm thứ hai ว.","roots":{"consonant":"หว","vowel":"-ะ","final":"ง","tone":"-"},"map":"CCVF"},
+            {"id":20,"group":1,"word":"ขัง","pinyin":"khang","vowel":"-ะ","translation":"Giam nhốt, giam cầm ⛓️","class":"high","note":"Nguyên âm gốc -ะ đổi thành á -ั trên đầu phụ âm đầu ข.","roots":{"consonant":"ข","vowel":"-ะ","final":"ง","tone":"-"},"map":"CVF"},
+            {"id":21,"group":1,"word":"ชั่ง","pinyin":"chang","vowel":"-ะ","translation":"Cân (trọng lượng) ⚖️","class":"low","note":"Nguyên âm gốc -ะ biến hình thành á -ั có dấu thanh điệu Mai Ek.","roots":{"consonant":"ช","vowel":"-ะ","final":"ง","tone":"่"},"map":"CVTF"},
+            {"id":22,"group":1,"word":"ปัง","pinyin":"pang","vowel":"-ะ","translation":"Tiếng nổ / Đang hot 💥","class":"mid","note":"Nguyên âm gốc -ะ đổi vị trí thành á -ั đứng trước ง.","roots":{"consonant":"ป","vowel":"-ะ","final":"ง","tone":"-"},"map":"CVF"},
+            {"id":23,"group":1,"word":"รัง","pinyin":"rang","vowel":"-ะ","translation":"Cái tổ (chim, ong) 🪹","class":"low","note":"Nguyên âm gốc -ะ đổi thành -ั khi kết hợp phụ âm cuối ง.","roots":{"consonant":"ร","vowel":"-ะ","final":"ง","tone":"-"},"map":"CVF"},
+            {"id":24,"group":1,"word":"คัน","pinyin":"khan","vowel":"-ะ","translation":"Ngứa ngáy / Chiếc (xe) 🚗","class":"low","note":"Dấu -ะ đổi thành -ั trên đầu phụ âm ค trước phụ âm cuối น.","roots":{"consonant":"ค","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":25,"group":1,"word":"ฟัน","pinyin":"fan","vowel":"-ะ","translation":"Răng / Chặt, chém 🪥","class":"low","note":"Nguyên âm -ะ đổi thành -ั trước phụ âm cuối น.","roots":{"consonant":"ฟ","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":26,"group":1,"word":"วัน","pinyin":"wan","vowel":"-ะ","translation":"Ngày, ban ngày 📅","class":"low","note":"Nguyên âm ngắn -ะ biến đổi thành dấu -ั khi có phụ âm cuối là น.","roots":{"consonant":"ว","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":27,"group":1,"word":"ฉัน","pinyin":"chan","vowel":"-ะ","translation":"Tôi, tớ (thân mật) 🙋","class":"high","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước âm cuối น.","roots":{"consonant":"ฉ","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":28,"group":1,"word":"มัน","pinyin":"man","vowel":"-ะ","translation":"Nó / Khoai lang / Chất béo 🍠","class":"low","note":"Dấu -ะ co lại thành á -ั phía trên phụ âm đầu ม trước น.","roots":{"consonant":"ม","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":29,"group":1,"word":"กัน","pinyin":"kan","vowel":"-ะ","translation":"Cùng nhau / Ngăn chặn 🛡️","class":"mid","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước phụ âm cuối น.","roots":{"consonant":"ก","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":30,"group":1,"word":"ดัน","pinyin":"dan","vowel":"-ะ","translation":"Đẩy, thúc đẩy 🆙","class":"mid","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước phụ âm cuối น.","roots":{"consonant":"ด","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":31,"group":1,"word":"พัน","pinyin":"phan","vowel":"-ะ","translation":"Số một ngàn / Quấn quanh 🌀","class":"low","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước phụ âm cuối น.","roots":{"consonant":"พ","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":32,"group":1,"word":"สั้น","pinyin":"san","vowel":"-ะ","translation":"Ngắn, ngắn ngủi 📏","class":"high","note":"Nguyên âm biến hình có thêm dấu thanh Mai Tho ở trên đỉnh đầu.","roots":{"consonant":"ส","vowel":"-ะ","final":"น","tone":"้"},"map":"CVTF"},
+            {"id":33,"group":1,"word":"นั้น","pinyin":"nan","vowel":"-ะ","translation":"Cái đó, điều đó 👈","class":"low","note":"Nguyên âm biến hình kết hợp dấu thanh Mai Tho nằm trên đầu dấu á.","roots":{"consonant":"น","vowel":"-ะ","final":"น","tone":"้"},"map":"CVTF"},
+            {"id":34,"group":1,"word":"ชั้น","pinyin":"chan","vowel":"-ะ","translation":"Tầng, lớp học 🏫","class":"low","note":"Phụ âm ช kết hợp nguyên âm -ะ biến thành -ั có dấu thanh Mai Tho.","roots":{"consonant":"ช","vowel":"-ะ","final":"น","tone":"้"},"map":"CVTF"},
+            {"id":35,"group":1,"word":"งัน","pinyin":"ngan","vowel":"-ะ","translation":"Ngơ ngác, sững sờ 😳","class":"low","note":"Dấu -ะ chuyển sang vị trí phía trên phụ âm đầu thành -ั trước น.","roots":{"consonant":"ง","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":36,"group":1,"word":"ปัน","pinyin":"pan","vowel":"-ะ","translation":"Chia sẻ, phân chia 🍰","class":"mid","note":"Nguyên âm ngắn -ะ biến hình thành á (-ั) trước phụ âm cuối น.","roots":{"consonant":"ป","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":37,"group":1,"word":"ฝัน","pinyin":"fan","vowel":"-ะ","translation":"Giấc mơ, mơ ước 😴","class":"high","note":"Nguyên âm gốc -ะ đổi thành dấu -ั khi gặp phụ âm cuối น.","roots":{"consonant":"ฝ","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":38,"group":1,"word":"หัน","pinyin":"han","vowel":"-ะ","translation":"Quay đầu, ngoảnh lại 🔄","class":"high","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước phụ âm cuối น.","roots":{"consonant":"ห","vowel":"-ะ","final":"น","tone":"-"},"map":"CVF"},
+            {"id":39,"group":1,"word":"มั่น","pinyin":"man","vowel":"-ะ","translation":"Vững chắc, tự tin 🛡️","class":"low","note":"Dấu á -ั nằm dưới dấu thanh Mai Ek trên đầu phụ âm ม.","roots":{"consonant":"ม","vowel":"-ะ","final":"น","tone":"่"},"map":"CVTF"},
+            {"id":40,"group":1,"word":"กับ","pinyin":"kap","vowel":"-ะ","translation":"Với, cùng với 🤝","class":"mid","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước phụ âm cuối บ.","roots":{"consonant":"ก","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
+            {"id":41,"group":1,"word":"ทับ","pinyin":"thap","vowel":"-ะ","translation":"Đè lên, chồng chất lên 🧱","class":"low","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước phụ âm cuối บ.","roots":{"consonant":"ท","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
+            {"id":42,"group":1,"word":"ดับ","pinyin":"dap","vowel":"-ะ","translation":"Tắt (nến, lửa, đèn) 🧯","class":"mid","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước phụ âm cuối บ.","roots":{"consonant":"ด","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
+            {"id":43,"group":1,"word":"รับ","pinyin":"rap","vowel":"-ะ","translation":"Nhận lấy, đón nhận 📥","class":"low","note":"Nguyên âm ngắn -ะ đổi vị trí thành dấu á -ั trước âm cuối บ.","roots":{"consonant":"ร","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
+            {"id":44,"group":1,"word":"สับ","pinyin":"sap","vowel":"-ะ","translation":"Băm nhỏ, chặt 🔪","class":"high","note":"Dấu -ะ co lại nhảy lên đỉnh chữ thành -ั trước âm cuối บ.","roots":{"consonant":"ส","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
+            {"id":45,"group":1,"word":"ยับ","pinyin":"yap","vowel":"-ะ","translation":"Nhàu nát, hỏng bét 📄","class":"low","note":"Nguyên âm ngắn -ะ đổi đuôi thành dấu -ั trước phụ âm cuối บ.","roots":{"consonant":"ย","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
+            {"id":46,"group":1,"word":"คับ","pinyin":"khap","vowel":"-ะ","translation":"Chật chội (quần áo) 👕","class":"low","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước phụ âm cuối บ.","roots":{"consonant":"ค","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
+            {"id":47,"group":1,"word":"ตับ","pinyin":"tap","vowel":"-ะ","translation":"Lá gan (cơ thể) 🥩","class":"mid","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước phụ âm cuối บ.","roots":{"consonant":"ต","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
+            {"id":48,"group":1,"word":"พับ","pinyin":"phap","vowel":"-ะ","translation":"Gấp giấy, xếp áo 📄","class":"low","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước phụ âm cuối บ.","roots":{"consonant":"พ","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
+            {"id":49,"group":1,"word":"ลับ","pinyin":"lap","vowel":"-ะ","translation":"Bí mật / Mài sắc dao 🗡️","class":"low","note":"Nguyên âm gốc -ะ đổi thành dấu -ั trước phụ âm cuối บ.","roots":{"consonant":"ล","vowel":"-ะ","final":"บ","tone":"-"},"map":"CVF"},
 
-            // II. NHÓM เ-ะ -> เ-็
-            { word: "เจ็ด", pinyin: "jèt", translation: "Số bảy (7) 7️⃣", class: "mid", type: "transform", note: "Nguyên âm gốc เ-ะ biến hình đuôi ะ thành dấu Mai Taikhú (็) khi có âm cuối ด. Thanh Huyền.", slots: { leadVowel: "เ", consonant: "จ", vowelTop: "", maiTaikhu: "็", tone: "", vowelBottom: "", vowelRight: "", final: "ด" }, roots: { consonant: "จ", vowel: "เ-ะ", final: "ด", tone: "" } },
-            { word: "เป็ด", pinyin: "bèt", translation: "Con vịt 🦆", class: "mid", type: "transform", note: "Nguyên âm gốc เ-ะ biến hình đuôi ะ thành ็ khi có âm cuối ด. Thanh Huyền.", slots: { leadVowel: "เ", consonant: "ป", vowelTop: "", maiTaikhu: "็", tone: "", vowelBottom: "", vowelRight: "", final: "ด" }, roots: { consonant: "ป", vowel: "เ-ะ", final: "ด", tone: "" } },
-            { word: "เล็ก", pinyin: "lék", translation: "Nhỏ, bé 🐁", class: "low", type: "transform", note: "Nguyên âm เ-ะ biến hình đuôi thành dấu ็ trước phụ âm cuối ก. Thanh Sắc.", slots: { leadVowel: "เ", consonant: "ล", vowelTop: "", maiTaikhu: "็", tone: "", vowelBottom: "", vowelRight: "", final: "ก" }, roots: { consonant: "ล", vowel: "เ-ะ", final: "ก", tone: "" } },
-            { word: "เค็ม", pinyin: "khem", translation: "Vị mặn 🧂", class: "low", type: "transform", note: "Nguyên âm เ-ะ biến hình đuôi thành ็ trước phụ âm cuối ม. Thanh Bằng.", slots: { leadVowel: "เ", consonant: "ค", vowelTop: "", maiTaikhu: "็", tone: "", vowelBottom: "", vowelRight: "", final: "ม" }, roots: { consonant: "ค", vowel: "เ-ะ", final: "ม", tone: "" } },
-            { word: "เต็ม", pinyin: "dtêm", translation: "Đầy 🥛", class: "mid", type: "transform", note: "Nguyên âm เ-ะ biến hình đuôi thành ็ trước phụ âm cuối ม. Thanh Bằng.", slots: { leadVowel: "เ", consonant: "ต", vowelTop: "", maiTaikhu: "็", tone: "", vowelBottom: "", vowelRight: "", final: "ม" }, roots: { consonant: "ต", vowel: "เ-ะ", final: "ม", tone: "" } },
-            { word: "เย็บ", pinyin: "yep", translation: "May, khâu vá 🪡", class: "low", type: "transform", note: "Nguyên âm เ-ะ biến hình đuôi thành ็ trước phụ âm cuối บ. Thanh Sắc.", slots: { leadVowel: "เ", consonant: "ย", vowelTop: "", maiTaikhu: "็", tone: "", vowelBottom: "", vowelRight: "", final: "บ" }, roots: { consonant: "ย", vowel: "เ-ะ", final: "บ", tone: "" } },
-            { word: "เจ็บ", pinyin: "jep", translation: "Đau đớn 🤕", class: "mid", type: "transform", note: "Nguyên âm เ-ะ biến hình đuôi thành ็ trước phụ âm cuối บ. Thanh Huyền.", slots: { leadVowel: "เ", consonant: "จ", vowelTop: "", maiTaikhu: "็", tone: "", vowelBottom: "", vowelRight: "", final: "บ" }, roots: { consonant: "จ", vowel: "เ-ะ", final: "บ", tone: "" } },
-            { word: "เก็บ", pinyin: "gep", translation: "Thu gom, cất giữ 📦", class: "mid", type: "transform", note: "Nguyên âm เ-ะ biến hình đuôi thành ็ trước phụ âm cuối บ. Thanh Huyền.", slots: { leadVowel: "เ", consonant: "ก", vowelTop: "", maiTaikhu: "็", tone: "", vowelBottom: "", vowelRight: "", final: "บ" }, roots: { consonant: "ก", vowel: "เ-ะ", final: "บ", tone: "" } },
+            // ================= GROUP 2: เ-ะ ➔ เ-็ (50 items) =================
+            {"id":50,"group":2,"word":"เป็ด","pinyin":"pet","vowel":"เ-ะ","translation":"Con vịt 🦆","class":"mid","note":"Nguyên âm gốc เ-ะ biến hình đuôi -ะ thành dấu Mai Taikhú (็) trên đầu phụ âm đầu ป.","roots":{"consonant":"ป","vowel":"เ-ะ","final":"ด","tone":"-"},"map":"VCVF"},
+            {"id":51,"group":2,"word":"เจ็ด","pinyin":"chet","vowel":"เ-ะ","translation":"Số bảy (7) 7️⃣","class":"mid","note":"Nguyên âm gốc เ-ะ biến hình đuôi -ะ thành dấu Mai Taikhú (็) khi có âm cuối ด.","roots":{"consonant":"จ","vowel":"เ-ะ","final":"ด","tone":"-"},"map":"VCVF"},
+            {"id":52,"group":2,"word":"เผ็ด","pinyin":"phet","vowel":"เ-ะ","translation":"Vị cay nóng 🌶️","class":"high","note":"Nguyên âm ngắn เ-ะ đổi đuôi -ะ thành dấu ็ phía trên phụ âm đầu ผ.","roots":{"consonant":"ผ","vowel":"เ-ะ","final":"ด","tone":"-"},"map":"VCVF"},
+            {"id":53,"group":2,"word":"เช็ด","pinyin":"chet","vowel":"เ-ะ","translation":"Lau chùi, làm sạch 🧻","class":"low","note":"Dấu -ะ của nguyên âm เ-ะ chuyển lên đỉnh đầu thành dấu ็ trước âm cuối ด.","roots":{"consonant":"ช","vowel":"เ-ะ","final":"ด","tone":"-"},"map":"VCVF"},
+            {"id":54,"group":2,"word":"เก็บ","pinyin":"kep","vowel":"เ-ะ","translation":"Cất giữ, thu gom 📦","class":"mid","note":"Nguyên âm ngắn เ-ะ đổi đuôi thành dấu ็ trước phụ âm cuối บ.","roots":{"consonant":"ก","vowel":"เ-ะ","final":"บ","tone":"-"},"map":"VCVF"},
+            {"id":55,"group":2,"word":"เจ็บ","pinyin":"chep","vowel":"เ-ะ","translation":"Đau đớn, bị thương 🤕","class":"mid","note":"Nguyên âm ngắn เ-ะ đổi đuôi thành dấu ็ trên đầu phụ âm จ.","roots":{"consonant":"จ","vowel":"เ-ะ","final":"บ","tone":"-"},"map":"VCVF"},
+            {"id":56,"group":2,"word":"เย็บ","pinyin":"yep","vowel":"เ-ะ","translation":"May, khâu vá 🪡","class":"low","note":"Ký tự đuôi -ะ biến đổi thành dấu ็ nằm trên phụ âm đầu ย.","roots":{"consonant":"ย","vowel":"เ-ะ","final":"บ","tone":"-"},"map":"VCVF"},
+            {"id":57,"group":2,"word":"เล็บ","pinyin":"lep","vowel":"เ-ะ","translation":"Móng tay, móng chân 💅","class":"low","note":"Nguyên âm ngắn เ-ะ đổi đuôi -ะ thành dấu ็ trên đầu phụ âm ล.","roots":{"consonant":"ล","vowel":"เ-ะ","final":"บ","tone":"-"},"map":"VCVF"},
+            {"id":58,"group":2,"word":"เค็ม","pinyin":"khem","vowel":"เ-ะ","translation":"Vị mặn 🧂","class":"low","note":"Nguyên âm ngắn เ-ะ đổi đuôi thành dấu ็ trên đầu phụ âm ค.","roots":{"consonant":"ค","vowel":"เ-ะ","final":"ม","tone":"-"},"map":"VCVF"},
+            {"id":59,"group":2,"word":"เต็ม","pinyin":"tem","vowel":"เ-ะ","translation":"Đầy, tràn đầy 🥛","class":"mid","note":"Nguyên âm ngắn เ-ะ đổi đuôi thành dấu ็ trên đầu phụ âm ต.","roots":{"consonant":"ต","vowel":"เ-ะ","final":"ม","tone":"-"},"map":"VCVF"},
+            {"id":60,"group":2,"word":"เข็ม","pinyin":"khem","vowel":"เ-ะ","translation":"Kim khâu / Kim la bàn 🪡","class":"high","note":"Nguyên âm ngắn เ-ะ đổi đuôi thành dấu ็ trên đầu phụ âm ข.","roots":{"consonant":"ข","vowel":"เ-ะ","final":"ม","tone":"-"},"map":"VCVF"},
+            {"id":61,"group":2,"word":"เล่ม","pinyin":"lem","vowel":"เ-ะ","translation":"Quyển, cuốn (lượng từ sách) 📖","class":"low","note":"Nguyên âm ngắn เ-ะ đổi đuôi thành dấu ็ kết hợp với dấu thanh Mai Ek.","roots":{"consonant":"ล","vowel":"เ-ะ","final":"ม","tone":"่"},"map":"VCTF"},
+            {"id":62,"group":2,"word":"เป็น","pinyin":"pen","vowel":"เ-ะ","translation":"Là / Bị (bệnh) / Sống sót 🧬","class":"mid","note":"Nguyên âm ngắn เ-ะ đổi đuôi thành dấu ็ trên đầu phụ âm ป.","roots":{"consonant":"ป","vowel":"เ-ะ","final":"น","tone":"-"},"map":"VCVF"},
+            {"id":63,"group":2,"word":"เห็น","pinyin":"hen","vowel":"เ-ะ","translation":"Nhìn thấy, thấy 👁️","class":"high","note":"Nguyên âm ngắn เ-ะ đổi đuôi thành dấu ็ trên đầu phụ âm ห.","roots":{"consonant":"ห","vowel":"เ-ะ","final":"น","tone":"-"},"map":"VCVF"},
+            {"id":64,"group":2,"word":"เย็น","pinyin":"yen","vowel":"เ-ะ","translation":"Lạnh lẽo / Buổi tối ❄️","class":"low","note":"Nguyên âm ngắn เ-ะ đổi đuôi thành dấu ็ trên đầu phụ âm ย.","roots":{"consonant":"ย","vowel":"เ-ะ","final":"น","tone":"-"},"map":"VCVF"},
+            {"id":65,"group":2,"word":"เล่น","pinyin":"len","vowel":"เ-ะ","translation":"Chơi, đùa nghịch 🎮","class":"low","note":"Nguyên âm ngắn เ-ะ đổi đuôi thành dấu ็ có kèm dấu thanh Mai Ek.","roots":{"consonant":"ล","vowel":"เ-ะ","final":"น","tone":"่"},"map":"VCTF"},
+            {"id":66,"group":2,"word":"เส้น","pinyin":"sen","vowel":"เ-ะ","translation":"Sợi dây / Đường thẳng 🧵","class":"high","note":"Phụ âm ส, nguyên âm biến hình เ-ะ -> เ-็ có dấu thanh Mai Tho.","roots":{"consonant":"ส","vowel":"เ-ะ","final":"น","tone":"้"},"map":"VCTF"},
+            {"id":67,"group":2,"word":"เต้น","pinyin":"ten","vowel":"เ-ะ","translation":"Nhảy múa / Nhịp tim đập 🕺","class":"mid","note":"Phụ âm ต, nguyên âm biến hình เ-ะ -> เ-็ có dấu thanh Mai Tho.","roots":{"consonant":"ต","vowel":"เ-ะ","final":"น","tone":"้"},"map":"VCTF"},
+            {"id":68,"group":2,"word":"เน้น","pinyin":"nen","vowel":"เ-ะ","translation":"Nhấn mạnh, làm nổi bật 📌","class":"low","note":"Phụ âm น, nguyên âm biến hình เ-ะ -> เ-็ có dấu thanh Mai Tho.","roots":{"consonant":"น","vowel":"เ-ะ","final":"น","tone":"้"},"map":"VCTF"},
+            {"id":69,"group":2,"word":"เบ็ด","pinyin":"bet","vowel":"เ-ะ","translation":"Lưỡi câu cá 🎣","class":"mid","note":"Nguyên âm ngắn เ-ะ đổi đuôi thành dấu ็ trên đầu phụ âm บ.","roots":{"consonant":"บ","vowel":"เ-ะ","final":"ด","tone":"-"},"map":"VCVF"},
 
-            // III. NHÓM แ-ะ -> แ-็
-            { word: "แข็ง", pinyin: "khaeng", translation: "Cứng cáp, đóng băng ❄️", class: "high", type: "transform", note: "Nguyên âm gốc แ-ะ biến hình đuôi -ะ thành dấu ็ trước phụ âm cuối ง. Thanh Hỏi.", slots: { leadVowel: "แ", consonant: "ข", vowelTop: "", maiTaikhu: "็", tone: "", vowelBottom: "", vowelRight: "", final: "ง" }, roots: { consonant: "ข", vowel: "แ-ะ", final: "ง", tone: "" } },
-            { word: "แม็ก", pinyin: "maek", translation: "Ghim kẹp giấy 📎", class: "low", type: "transform", note: "Nguyên âm ngoại lai แ-ะ biến hình thành แ-็ trước âm cuối ก. Thanh Sắc.", slots: { leadVowel: "แ", consonant: "ม", vowelTop: "", maiTaikhu: "็", tone: "", vowelBottom: "", vowelRight: "", final: "ก" }, roots: { consonant: "ม", vowel: "แ-ะ", final: "ก", tone: "" } },
-            { word: "แก็ง", pinyin: "gaeng", translation: "Băng nhóm 👥", class: "mid", type: "transform", note: "Nguyên âm ngoại lai mượn tiếng Anh biến hình thành แ-็ trước âm cuối ง. Thanh Bằng.", slots: { leadVowel: "แ", consonant: "ก", vowelTop: "", maiTaikhu: "็", tone: "", vowelBottom: "", vowelRight: "", final: "ง" }, roots: { consonant: "ก", vowel: "แ-ะ", final: "ง", tone: "" } },
+            // ================= GROUP 3: แ-ะ ➔ แ-็ (25 items) =================
+            {"id":100,"group":3,"word":"แข็ง","pinyin":"khaeng","vowel":"แ-ะ","translation":"Cứng cáp / Đóng băng ❄️","class":"high","note":"Nguyên âm gốc แ-ะ biến hình đuôi -ะ thành dấu ็ trên đầu phụ âm đầu ข.","roots":{"consonant":"ข","vowel":"แ-ะ","final":"ง","tone":"-"},"map":"VCVF"},
+            {"id":101,"group":3,"word":"แกร็น","pinyin":"kraen","vowel":"แ-ะ","translation":"Còi cọc, chậm phát triển 🌱","class":"mid","note":"Có cụm phụ âm ghép กร, dấu ็ được viết trên đầu phụ âm thứ hai ร.","roots":{"consonant":"กร","vowel":"แ-ะ","final":"น","tone":"-"},"map":"VCCVF"},
+            {"id":102,"group":3,"word":"แม็ก","pinyin":"maek","vowel":"แ-ะ","translation":"Cái dập ghim giấy 📎","class":"low","note":"Từ ngoại lai mượn tiếng Anh, biến đổi thành แ-็ trước âm cuối ก.","roots":{"consonant":"ม","vowel":"แ-ะ","final":"ก","tone":"-"},"map":"VCVF"},
+            {"id":103,"group":3,"word":"แบ็ก","pinyin":"baek","vowel":"แ-ะ","translation":"Hậu vệ / Phía sau (Back) 🛡️","class":"mid","note":"Từ mượn tiếng Anh, nguyên âm gốc แ-ะ biến đổi thành แ-็.","roots":{"consonant":"บ","vowel":"แ-ะ","final":"ก","tone":"-"},"map":"VCVF"},
+            {"id":104,"group":3,"word":"แจ็ก","pinyin":"chaek","vowel":"แ-ะ","translation":"Áo khoác / Jack 🧥","class":"mid","note":"Từ mượn tiếng Anh, nguyên âm gốc แ-ะ biến đổi thành แ-็.","roots":{"consonant":"จ","vowel":"แ-ะ","final":"ก","tone":"-"},"map":"VCVF"},
+            {"id":105,"group":3,"word":"แท็ก","pinyin":"thaek","vowel":"แ-ะ","translation":"Thẻ treo / Taxi 🏷️","class":"low","note":"Từ mượn tiếng Anh, nguyên âm gốc แ-ะ biến đổi thành แ-็.","roots":{"consonant":"ท","vowel":"แ-ะ","final":"ก","tone":"-"},"map":"VCVF"},
+            {"id":106,"group":3,"word":"แพ็ก","pinyin":"phaek","vowel":"แ-ะ","translation":"Đóng gói (Pack) 📦","class":"low","note":"Từ mượn tiếng Anh, nguyên âm gốc แ-ะ biến đổi thành แ-็.","roots":{"consonant":"พ","vowel":"แ-ะ","final":"ก","tone":"-"},"map":"VCVF"},
 
-            // IV. NHÓM โ-ะ -> ∅ (ẨN)
-            { word: "นก", pinyin: "nok", translation: "Con chim 🐦", class: "low", type: "hidden", note: "Nguyên âm ngắn โ-ะ Giản lược biến mất hoàn toàn khi có âm cuối ก. Thanh Sắc.", slots: { leadVowel: "", consonant: "น", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ก" }, roots: { consonant: "น", vowel: "โ-ะ", final: "ก", tone: "" } },
-            { word: "มด", pinyin: "mot", translation: "Con kiến 🐜", class: "low", type: "hidden", note: "Nguyên âm ngắn โ-ะ Giản lược ẩn hoàn toàn khi kết thúc bằng phụ âm cuối ด. Thanh Sắc.", slots: { leadVowel: "", consonant: "ม", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ด" }, roots: { consonant: "ม", vowel: "โ-ะ", final: "ด", tone: "" } },
-            { word: "รถ", pinyin: "rot", translation: "Xe cộ, phương tiện giao thông 🚗", class: "low", type: "hidden", note: "Nguyên âm ngắn โ-ะ Giản lược ẩn hoàn toàn khi kết thúc bằng ถ (đọc như ด). Thanh Sắc.", slots: { leadVowel: "", consonant: "ร", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ถ" }, roots: { consonant: "ร", vowel: "โ-ะ", final: "ถ", tone: "" } },
-            { word: "สด", pinyin: "sot", translation: "Tươi sống, tươi xanh 🍎", class: "high", type: "hidden", note: "Nguyên âm ngắn โ-ะ Giản lược ẩn hoàn toàn khi kết thúc bằng phụ âm cuối ด. Thanh Huyền.", slots: { leadVowel: "", consonant: "ส", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ด" }, roots: { consonant: "ส", vowel: "โ-ะ", final: "ด", tone: "" } },
-            { word: "กด", pinyin: "got", translation: "Nhấn, ấn nút 🔘", class: "mid", type: "hidden", note: "Nguyên âm ngắn โ-ะ Giản lược ẩn hoàn toàn khi kết thúc bằng phụ âm cuối ด. Thanh Huyền.", slots: { leadVowel: "", consonant: "ก", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ด" }, roots: { consonant: "ก", vowel: "โ-ะ", final: "ด", tone: "" } },
-            { word: "ตก", pinyin: "dtok", translation: "Rơi rớt, mưa rơi ☔", class: "mid", type: "hidden", note: "Nguyên âm ngắn โ-ะ Giản lược ẩn hoàn toàn khi kết thúc bằng phụ âm cuối ก. Thanh Huyền.", slots: { leadVowel: "", consonant: "ต", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ก" }, roots: { consonant: "ต", vowel: "โ-ะ", final: "ก", tone: "" } },
-            { word: "ฝน", pinyin: "fon", translation: "Cơn mưa 🌧️", class: "high", type: "hidden", note: "Nguyên âm ngắn โ-ะ Giản lược ẩn hoàn toàn trước âm cuối น. Thanh Hỏi.", slots: { leadVowel: "", consonant: "ฝ", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "น" }, roots: { consonant: "ฝ", vowel: "โ-ะ", final: "น", tone: "" } },
-            { word: "คน", pinyin: "khon", translation: "Con người, nhân loại 👤", class: "low", type: "hidden", note: "Nguyên âm ngắn โ-ะ Giản lược ẩn hoàn toàn trước âm cuối น. Thanh Bằng.", slots: { leadVowel: "", consonant: "ค", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "น" }, roots: { consonant: "ค", vowel: "โ-ะ", final: "น", tone: "" } },
-            { word: "ลม", pinyin: "lom", translation: "Cơn gió, gió thổi 🍃", class: "low", type: "hidden", note: "Nguyên âm ngắn โ-ะ Giản lược ẩn hoàn toàn trước âm cuối ม. Thanh Bằng.", slots: { leadVowel: "", consonant: "ล", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ม" }, roots: { consonant: "ล", vowel: "โ-ะ", final: "ม", tone: "" } },
+            // ================= GROUP 4: เ-อ ➔ เ-ิ (50 items) =================
+            {"id":150,"group":4,"word":"เดิน","pinyin":"doen","vowel":"เ-อ","translation":"Đi bộ, di chuyển 🚶","class":"mid","note":"Nguyên âm เ-อ biến hình thành เ-ิ (thêm dấu ิ trên phụ âm đầu ด) khi gặp âm cuối น.","roots":{"consonant":"ด","vowel":"เ-อ","final":"น","tone":"-"},"map":"VCVF"},
+            {"id":151,"group":4,"word":"เงิน","pinyin":"ngoen","vowel":"เ-อ","translation":"Tiền bạc, ngân sách 💵","class":"low","note":"Nguyên âm เ-อ biến hình thành เ-ิ (thêm dấu ิ trên phụ âm đầu ง) trước âm cuối น.","roots":{"consonant":"ง","vowel":"เ-อ","final":"น","tone":"-"},"map":"VCVF"},
+            {"id":152,"group":4,"word":"เกิน","pinyin":"koen","vowel":"เ-อ","translation":"Vượt quá, quá mức 📈","class":"mid","note":"Chữ อ của nguyên âm เ-อ biến chuyển nhảy lên đỉnh đầu thành dấu ิ trước น.","roots":{"consonant":"ก","vowel":"เ-อ","final":"น","tone":"-"},"map":"VCVF"},
+            {"id":153,"group":4,"word":"เพลิน","pinyin":"phloen","vowel":"เ-อ","translation":"Vui vẻ say sưa, mải mê 🎶","class":"low","note":"Cụm phụ âm ghép พล. Dấu ิ được hiển thị trên phụ âm thứ hai ล.","roots":{"consonant":"พล","vowel":"เ-อ","final":"น","tone":"-"},"map":"VCCVF"},
+            {"id":154,"group":4,"word":"เนิ่น","pinyin":"noen","vowel":"เ-อ","translation":"Lâu dài, trì hoãn ⏳","class":"low","note":"Nguyên âm biến hình เ-ิ kết hợp thêm dấu thanh Mai Ek trên phụ âm đầu.","roots":{"consonant":"น","vowel":"เ-อ","final":"น","tone":"่"},"map":"VCVTF"},
+            {"id":155,"group":4,"word":"เนิน","pinyin":"noen","vowel":"เ-อ","translation":"Quả đồi, sườn dốc ⛰️","class":"low","note":"Nguyên âm เ-อ biến hình thành เ-ิ trước phụ âm cuối น.","roots":{"consonant":"น","vowel":"เ-อ","final":"น","tone":"-"},"map":"VCVF"},
+            {"id":156,"group":4,"word":"เกิด","pinyin":"koet","vowel":"เ-อ","translation":"Sinh ra, phát sinh 🐣","class":"mid","note":"Nguyên âm เ-อ biến hình thành เ-ิ (thêm dấu ิ trên phụ âm đầu ก) trước âm cuối ด.","roots":{"consonant":"ก","vowel":"เ-อ","final":"ด","tone":"-"},"map":"VCVF"},
+            {"id":157,"group":4,"word":"เปิด","pinyin":"poet","vowel":"เ-อ","translation":"Mở rộng cửa, bật thiết bị 🔓","class":"mid","note":"Nguyên âm เ-อ biến hình thành เ-ิ (thêm dấu ิ trên phụ âm đầu ป) trước âm cuối ด.","roots":{"consonant":"ป","vowel":"เ-อ","final":"ด","tone":"-"},"map":"VCVF"},
+            {"id":158,"group":4,"word":"เชิด","pinyin":"choet","vowel":"เ-อ","translation":"Ngẩng cao đầu / Biểu diễn múa rối 🎭","class":"low","note":"Nguyên âm เ-อ biến hình thành เ-ิ trước phụ âm cuối ด.","roots":{"consonant":"ช","vowel":"เ-อ","final":"ด","tone":"-"},"map":"VCVF"},
+            {"id":159,"group":4,"word":"เลิศ","pinyin":"loet","vowel":"เ-อ","translation":"Tuyệt vời, xuất chúng 🏆","class":"low","note":"Nguyên âm เ-อ biến hình thành เ-ิ trước ศ (phát âm giọng ด).","roots":{"consonant":"ล","vowel":"เ-อ","final":"ศ","tone":"-"},"map":"VCVF"},
+            {"id":160,"group":4,"word":"เคย","pinyin":"khoei","vowel":"เ-อ","translation":"Đã từng, từng trải qua 🕰️","class":"low","note":"Hiện tượng ĐẶC BIỆT: Gặp phụ âm cuối ย, chữ อ biến mất hoàn toàn thay vì biến đổi thành ิ.","roots":{"consonant":"ค","vowel":"เ-อ","final":"ย","tone":"-"},"map":"VCF"},
+            {"id":161,"group":4,"word":"เลย","pinyin":"loei","vowel":"เ-อ","translation":"Vượt quá / Luôn, đi liền 🏔️","class":"low","note":"Hiện tượng ĐẶC BIỆT: Ký tự อ biến mất hoàn toàn khi có phụ âm cuối là ย.","roots":{"consonant":"ล","vowel":"เ-er","final":"ย","tone":"-"},"map":"VCF"},
+            {"id":162,"group":4,"word":"เผย","pinyin":"phoei","vowel":"เ-อ","translation":"Tiết lộ, công bố 🔓","class":"high","note":"Ký tự อ biến mất hoàn toàn khi có phụ âm cuối đặc biệt ย.","roots":{"consonant":"ผ","vowel":"เ-er","final":"ย","tone":"-"},"map":"VCF"},
+            {"id":163,"group":4,"word":"เฉย","pinyin":"choei","vowel":"เ-อ","translation":"Thờ ơ, im lặng, bình thường 😶","class":"high","note":"Ký tự อ biến mất hoàn toàn khi có phụ âm cuối đặc biệt ย.","roots":{"consonant":"ฉ","vowel":"เ-er","final":"ย","tone":"-"},"map":"VCF"},
+            {"id":164,"group":4,"word":"เขย","pinyin":"khoei","vowel":"เ-อ","translation":"Con rể (trong gia đình) 👨","class":"high","note":"Ký tự อ biến mất hoàn toàn trước phụ âm cuối đặc biệt ย.","roots":{"consonant":"ข","vowel":"เ-er","final":"ย","tone":"-"},"map":"VCF"},
 
-            // V. NHÓM เ-อ -> เ-ิ / เ- (ย)
-            { word: "เดิน", pinyin: "doen", translation: "Đi bộ, di chuyển 🚶", class: "mid", type: "transform", note: "Nguyên âm เ-er Biến hình thành เ-ิ khi kết thúc bằng phụ âm น. Thanh Bằng.", slots: { leadVowel: "เ", consonant: "ด", vowelTop: "ิ", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "น" }, roots: { consonant: "ด", vowel: "เ-อ", final: "น", tone: "" } },
-            { word: "เกิด", pinyin: "goet", translation: "Sinh ra, phát sinh 🐣", class: "mid", type: "transform", note: "Nguyên âm เ-er Biến hình thành เ-ิ khi kết thúc bằng phụ âm ด. Thanh Huyền.", slots: { leadVowel: "เ", consonant: "ก", vowelTop: "ิ", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ด" }, roots: { consonant: "ก", vowel: "เ-อ", final: "ด", tone: "" } },
-            { word: "เปิด", pinyin: "bpoet", translation: "Mở rộng cửa, khai trương 🔓", class: "mid", type: "transform", note: "Nguyên âm เ-er Biến hình thành เ-ิ khi kết thúc bằng phụ âm ด. Thanh Huyền.", slots: { leadVowel: "เ", consonant: "ป", vowelTop: "ิ", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ด" }, roots: { consonant: "ป", vowel: "เ-อ", final: "ด", tone: "" } },
-            { word: "เงิน", pinyin: "ngoen", translation: "Tiền bạc, ngân sách 💵", class: "low", type: "transform", note: "Nguyên âm เ-er Biến hình thành เ-ิ khi kết thúc bằng phụ âm น. Thanh Bằng.", slots: { leadVowel: "เ", consonant: "ง", vowelTop: "ิ", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "น" }, roots: { consonant: "ง", vowel: "เ-อ", final: "น", tone: "" } },
-            { word: "เลิก", pinyin: "loek", translation: "Bỏ, kết thúc, chấm dứt 🚭", class: "low", type: "transform", note: "Nguyên âm เ-er Biến hình thành เ-ิ khi kết thúc bằng phụ âm ก. Thanh Sắc.", slots: { leadVowel: "เ", consonant: "ล", vowelTop: "ิ", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ก" }, roots: { consonant: "ล", vowel: "เ-อ", final: "ก", tone: "" } },
-            { word: "เลย", pinyin: "loei", translation: "Vượt qua, luôn, quá mức 🏔️", class: "low", type: "hidden", note: "Nguyên âm เ-er Lược bỏ อ เหลือ chỉ เ- khi kết thúc bằng phụ âm đặc biệt ย. Thanh Bằng.", slots: { leadVowel: "เ", consonant: "ล", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ย" }, roots: { consonant: "ล", vowel: "เ-er", final: "ย", tone: "" } },
-            { word: "เคย", pinyin: "khoei", translation: "Đã từng, từng trải qua 🕰️", class: "low", type: "hidden", note: "Nguyên âm เ-er Lược bỏ อ เหลือ chỉ เ- khi kết thúc bằng phụ âm đặc biệt ย. Thanh Bằng.", slots: { leadVowel: "เ", consonant: "ค", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ย" }, roots: { consonant: "ค", vowel: "เ-er", final: "ย", tone: "" } },
-            { word: "เนย", pinyin: "noei", translation: "Bơ, phô mai 🧀", class: "low", type: "hidden", note: "Nguyên âm เ-er Lược bỏ อ khi kết thúc bằng phụ âm đặc biệt ย. Thanh Bằng.", slots: { leadVowel: "เ", consonant: "น", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "ย" }, roots: { consonant: "น", vowel: "เ-er", final: "ย", tone: "" } },
+            // ================= GROUP 5: โ-ะ ➔ ∅ (75 items) =================
+            {"id":200,"group":5,"word":"นก","pinyin":"nok","vowel":"โ-ะ","translation":"Con chim 🐦","class":"low","note":"Quy luật giản lược: Cả hai ký tự โ- và -ะ biến mất hoàn toàn khi có âm cuối ก.","roots":{"consonant":"น","vowel":"โ-ะ","final":"ก","tone":"-"},"map":"CF"},
+            {"id":201,"group":5,"word":"มด","pinyin":"mot","vowel":"โ-ะ","translation":"Con kiến 🐜","class":"low","note":"Nguyên âm ngắn โ-ะ biến mất hoàn toàn khi có phụ âm cuối ด.","roots":{"consonant":"ม","vowel":"โ-ะ","final":"ด","tone":"-"},"map":"CF"},
+            {"id":202,"group":5,"word":"รถ","pinyin":"rot","vowel":"โ-ะ","translation":"Xe cộ, phương tiện giao thông 🚗","class":"low","note":"Nguyên âm ngắn โ-ะ ẩn đi trước phụ âm cuối ถ (phát âm giọng ด).","roots":{"consonant":"ร","vowel":"โ-ะ","final":"ถ","tone":"-"},"map":"CF"},
+            {"id":203,"group":5,"word":"ลม","pinyin":"lom","vowel":"โ-ะ","translation":"Cơn gió, gió thổi 🍃","class":"low","note":"Nguyên âm ngắn โ-ะ ẩn đi trước phụ âm cuối mũi ม.","roots":{"consonant":"ล","vowel":"โ-ะ","final":"ม","tone":"-"},"map":"CF"},
+            {"id":204,"group":5,"word":"สม","pinyin":"som","vowel":"โ-ะ","translation":"Xứng đáng, phù hợp ⚖️","class":"high","note":"Nguyên âm ngắn โ-ะ giản lược biến mất hoàn toàn trước âm cuối ม.","roots":{"consonant":"ส","vowel":"โ-ะ","final":"ม","tone":"-"},"map":"CF"},
+            {"id":205,"group":5,"word":"ผม","pinyin":"phom","vowel":"โ-ะ","translation":"Tôi (nam giới) / Mái tóc 💇","class":"high","note":"Nguyên âm ngắn โ-ะ giản lược ẩn hoàn toàn khi kết thúc bằng phụ âm cuối ม.","roots":{"consonant":"ผ","vowel":"โ-ะ","final":"ม","tone":"-"},"map":"CF"},
+            {"id":206,"group":5,"word":"ลบ","pinyin":"lop","vowel":"โ-ะ","translation":"Xoá bỏ / Phép trừ trong toán học ➖","class":"low","note":"Nguyên âm ngắn โ-ะ ẩn hoàn toàn trước phụ âm cuối บ.","roots":{"consonant":"ล","vowel":"โ-ะ","final":"บ","tone":"-"},"map":"CF"},
+            {"id":207,"group":5,"word":"พบ","pinyin":"phop","vowel":"โ-ะ","translation":"Gặp gỡ, tìm thấy 🔍","class":"low","note":"Nguyên âm ngắn โ-ะ giản lược ẩn hoàn toàn trước phụ âm cuối บ.","roots":{"consonant":"พ","vowel":"โ-ะ","final":"บ","tone":"-"},"map":"CF"},
+            {"id":208,"group":5,"word":"จบ","pinyin":"chop","vowel":"โ-ะ","translation":"Kết thúc, hoàn thành ✅","class":"low","note":"Nguyên âm ngắn โ-ะ ẩn hoàn toàn trước phụ âm cuối บ.","roots":{"consonant":"จ","vowel":"โ-ะ","final":"บ","tone":"-"},"map":"CF"},
+            {"id":209,"group":5,"word":"อบ","pinyin":"op","vowel":"โ-ะ","translation":"Sấy, nướng lò, xông hơi 🍞","class":"mid","note":"Nguyên âm ngắn โ-ะ ẩn hoàn toàn trước phụ âm cuối บ.","roots":{"consonant":"อ","vowel":"โ-ะ","final":"บ","tone":"-"},"map":"CF"},
+            {"id":210,"group":5,"word":"ต้ม","pinyin":"tom","vowel":"โ-ะ","translation":"Luộc, nấu sôi 🍲","class":"mid","note":"Nguyên âm ngắn โ-ะ ẩn đi, kết hợp dấu thanh Mai Tho trên đầu phụ âm đầu ต.","roots":{"consonant":"ต","vowel":"โ-ะ","final":"ม","tone":"้"},"map":"CTF"},
+            {"id":211,"group":5,"word":"ดม","pinyin":"dom","vowel":"โ-ะ","translation":"Ngửi, hít hà hương thơm 👃","class":"mid","note":"Nguyên âm ngắn โ-ะ giản lược ẩn hoàn toàn trước phụ âm cuối ม.","roots":{"consonant":"ด","vowel":"โ-ะ","final":"ม","tone":"-"},"map":"CF"},
+            {"id":212,"group":5,"word":"ชม","pinyin":"chom","vowel":"โ-ะ","translation":"Khen ngợi, chiêm ngưỡng 👏","class":"low","note":"Nguyên âm ngắn โ-ะ giản lược ẩn hoàn toàn trước phụ âm cuối ม.","roots":{"consonant":"ช","vowel":"โ-ะ","final":"ม","tone":"-"},"map":"CF"},
+            {"id":213,"group":5,"word":"ขม","pinyin":"khom","vowel":"โ-ะ","translation":"Vị đắng (thuốc, trà) ☕","class":"high","note":"Nguyên âm ngắn โ-ะ giản lược ẩn hoàn toàn trước phụ âm cuối ม.","roots":{"consonant":"ข","vowel":"โ-ะ","final":"ม","tone":"-"},"map":"CF"},
+            {"id":214,"group":5,"word":"จม","pinyin":"chom","vowel":"โ-ะ","translation":"Chìm nghỉm dưới nước ⚓","class":"mid","note":"Nguyên âm ngắn โ-ะ ẩn hoàn toàn trước phụ âm cuối ม.","roots":{"consonant":"จ","vowel":"โ-ะ","final":"ม","tone":"-"},"map":"CF"},
+            {"id":215,"group":5,"word":"กลม","pinyin":"klom","vowel":"โ-ะ","translation":"Hình tròn, tròn trịa 🟢","class":"mid","note":"Chứa phụ âm ghép กล. Nguyên âm โ-ะ ẩn đi hoàn toàn trước âm cuối ม.","roots":{"consonant":"กล","vowel":"โ-ะ","final":"ม","tone":"-"},"map":"CCF"},
+            {"id":216,"group":5,"word":"ส้ม","pinyin":"som","vowel":"โ-ะ","translation":"Quả cam, màu cam 🍊","class":"high","note":"Nguyên âm ngắn โ-ะ ẩn hoàn toàn trước phụ âm cuối ม có dấu Mai Tho.","roots":{"consonant":"ส","vowel":"โ-ะ","final":"ม","tone":"้"},"map":"CTF"},
+            {"id":217,"group":5,"word":"ตก","pinyin":"tok","vowel":"โ-ะ","translation":"Rơi rớt, mưa rơi ☔","class":"mid","note":"Nguyên âm ngắn โ-ะ ẩn hoàn toàn trước phụ âm cuối ก.","roots":{"consonant":"ต","vowel":"โ-ะ","final":"ก","tone":"-"},"map":"CF"},
+            {"id":218,"group":5,"word":"รก","pinyin":"rok","vowel":"โ-ะ","translation":"Bừa bộn, rậm rạp / Nhau thai 🌿","class":"low","note":"Nguyên âm ngắn โ-ะ ẩn hoàn toàn trước phụ âm cuối ก.","roots":{"consonant":"ร","vowel":"โ-ะ","final":"ก","tone":"-"},"map":"CF"},
+            {"id":219,"group":5,"word":"อก","pinyin":"ok","vowel":"โ-ะ","translation":"Lồng ngực, lồng lòng 💖","class":"mid","note":"Nguyên âm ngắn โ-ะ ẩn hoàn toàn trước phụ âm cuối ก.","roots":{"consonant":"อ","vowel":"โ-ะ","final":"ก","tone":"-"},"map":"CF"},
 
-            // VI. NHÓM ัว -> ว
-            { word: "สวย", pinyin: "suai", translation: "Xinh đẹp, lộng lẫy ✨", class: "high", type: "hidden", note: "Nguyên âm kép ัว Lược bỏ Mai Han-Akat (-ั) biến dạng thành ว khi có phụ âm cuối ย. Thanh Hỏi.", slots: { leadVowel: "", consonant: "ส", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "ว", final: "ย" }, roots: { consonant: "ส", vowel: "ัว", final: "ย", tone: "" } },
-            { word: "รวย", pinyin: "ruai", translation: "Giàu có, dồi dào 💰", class: "low", type: "hidden", note: "Nguyên âm ัว Lược bỏ ั còn lại duy nhất ว khi kết thúc bằng phụ âm cuối ย. Thanh Bằng.", slots: { leadVowel: "", consonant: "ร", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "ว", final: "ย" }, roots: { consonant: "ร", vowel: "ัว", final: "ย", tone: "" } },
-            { word: "ช่วย", pinyin: "chuai", translation: "Giúp đỡ, tương trợ nhau 🤝", class: "low", type: "hidden", note: "Nguyên âm ัว Lược bỏ ั còn lại ว khi kết thúc bằng ย có thêm dấu thanh Mai Ek (่). Thanh Rơi.", slots: { leadVowel: "", consonant: "ช", vowelTop: "", maiTaikhu: "", tone: "่", vowelBottom: "", vowelRight: "ว", final: "ย" }, roots: { consonant: "ช", vowel: "ัว", final: "ย", tone: "่" } },
-            { word: "ขวด", pinyin: "khuat", translation: "Cái chai đựng nước 🍾", class: "high", type: "hidden", note: "Nguyên âm ัว Lược bỏ ั còn lại duy nhất ký tự ว trước phụ âm cuối ด. Thanh Huyền.", slots: { leadVowel: "", consonant: "ข", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "ว", final: "ด" }, roots: { consonant: "ข", vowel: "ัว", final: "ด", tone: "" } },
-            { word: "นวด", pinyin: "nuat", translation: "Mát-xa, xoa bóp 💆", class: "low", type: "hidden", note: "Nguyên âm ัว Lược bỏ ั còn lại ว trước phụ âm cuối ด. Thanh Rơi.", slots: { leadVowel: "", consonant: "น", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "ว", final: "ด" }, roots: { consonant: "น", vowel: "ัว", final: "ด", tone: "" } },
-
-            // VII. NHÓM CƠ BẢN (KHÔNG BIẾN HÌNH)
-            { word: "สิ้น", pinyin: "sîn", translation: "Hết, kết thúc, tận cùng 🏁", class: "high", type: "normal", note: "Dấu Mai Tho (้) nằm trên đầu phụ âm Cao (ส) chồng trên nguyên âm ngắn (ิ). Thanh Rơi.", slots: { leadVowel: "", consonant: "ส", vowelTop: "ิ", maiTaikhu: "", tone: "้", vowelBottom: "", vowelRight: "", final: "น" }, roots: { consonant: "ส", vowel: "ิ", final: "น", tone: "้" } },
-            { word: "ช้าง", pinyin: "chaang", translation: "Con voi lớn 🐘", class: "low", type: "normal", note: "Cấu trúc ghép cơ bản không biến đổi. Có thanh điệu Sắc.", slots: { leadVowel: "", consonant: "ช", vowelTop: "", maiTaikhu: "", tone: "้", vowelBottom: "", vowelRight: "า", final: "ง" }, roots: { consonant: "ช", vowel: "า", final: "ง", tone: "้" } },
-            { word: "บ้าน", pinyin: "baan", translation: "Ngôi nhà, tổ ấm 🏠", class: "mid", type: "normal", note: "Cấu trúc ghép cơ bản không biến đổi. Có thanh điệu Rơi.", slots: { leadVowel: "", consonant: "บ", vowelTop: "", maiTaikhu: "", tone: "้", vowelBottom: "", vowelRight: "า", final: "น" }, roots: { consonant: "บ", vowel: "า", final: "น", tone: "้" } },
-            { word: "กิน", pinyin: "gin", translation: "Ăn, thưởng thức thức ăn 🍽️", class: "mid", type: "normal", note: "Phụ âm đầu ghép cơ bản không biến dạng chính tả. Thanh Bằng.", slots: { leadVowel: "", consonant: "ก", vowelTop: "ิ", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "น" }, roots: { consonant: "ก", vowel: "ิ", final: "น", tone: "" } },
-            { word: "ดี", pinyin: "dii", translation: "Tốt lành, tuyệt hảo 🌟", class: "mid", type: "normal", note: "Nguyên âm dài ี nằm trên đầu phụ âm Trung. Thanh Bằng.", slots: { leadVowel: "", consonant: "ด", vowelTop: "ี", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "" }, roots: { consonant: "ด", vowel: "ี", final: "", tone: "" } },
-            { word: "มี", pinyin: "mii", translation: "Có, sở hữu 👜", class: "low", type: "normal", note: "Nguyên âm dài ี nằm trên đầu phụ âm Thấp. Thanh Bằng.", slots: { leadVowel: "", consonant: "ม", vowelTop: "ี", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "" }, roots: { consonant: "ม", vowel: "ี", final: "", tone: "" } },
-            { word: "ดิน", pinyin: "din", translation: "Mặt đất, đất đai 🌍", class: "mid", type: "normal", note: "Phụ âm đầu ด + nguyên âm trên ิ + phụ âm cuối น. Không biến hình. Thanh Bằng.", slots: { leadVowel: "", consonant: "ด", vowelTop: "ิ", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "น" }, roots: { consonant: "ด", vowel: "ิ", final: "น", tone: "" } },
-            { word: "สิบ", pinyin: "sip", translation: "Số mười (10) 🔟", class: "high", type: "normal", note: "Phụ âm đầu ส + nguyên âm trên ิ + phụ âm cuối บ. Thanh Huyền.", slots: { leadVowel: "", consonant: "ส", vowelTop: "ิ", maiTaikhu: "", tone: "", vowelBottom: "", vowelRight: "", final: "บ" }, roots: { consonant: "ส", vowel: "ิ", final: "บ", tone: "" } },
-            { word: "ดู", pinyin: "duu", translation: "Xem, nhìn ngắm 👀", class: "mid", type: "normal", note: "Nguyên âm dưới dài ู đứng dưới phụ âm đầu ด. Thanh Bằng.", slots: { leadVowel: "", consonant: "ด", vowelTop: "", maiTaikhu: "", tone: "", vowelBottom: "ู", vowelRight: "", final: "" }, roots: { consonant: "ด", vowel: "ู", final: "", tone: "" } }
-        ];
-
-        // System verification predefined list of 20 secure activation codes
-        const VALID_CODES = [
-            'TH-82J1-M92N', 'TH-4K2P-V71L', 'TH-9A2S-X83K', 'TH-7G5H-F29D', 'TH-1M4V-T82B', 
-            'TH-6C3W-Y74X', 'TH-2N8M-D41P', 'TH-5K9L-S22Z', 'TH-9902-8173', 'TH-5561-2294', 
-            'TH-8810-3345', 'TH-7729-1102', 'TH-3341-9980', 'TH-7B2X-N91R', 'TH-3V4C-M20K', 
-            'TH-8N5D-L11Q', 'TH-9K2F-W44T', 'THAI-A01X-PRO', 'THAI-B02Y-PRO', 'THAI-C03Z-PRO'
+            // ================= GROUP 6: ัว ➔ ว (75 items) =================
+            {"id":250,"group":6,"word":"สวย","pinyin":"suai","vowel":"ัว","translation":"Xinh đẹp, lộng lẫy ✨","class":"high","note":"Nguyên âm kép ัว lược bỏ Mai Han-Akat (-ั) còn lại duy nhất ký tự ว trước âm cuối ย.","roots":{"consonant":"ส","vowel":"ัว","final":"ย","tone":"-"},"map":"CVF"},
+            {"id":251,"group":6,"word":"รวย","pinyin":"ruai","vowel":"ัว","translation":"Giàu có, dồi dào 💰","class":"low","note":"Nguyên âm ัว lược bỏ -ั còn lại duy nhất ว trước phụ âm cuối ย.","roots":{"consonant":"ร","vowel":"ัว","final":"ย","tone":"-"},"map":"CVF"},
+            {"id":252,"group":6,"word":"ช่วย","pinyin":"chuai","vowel":"ัว","translation":"Giúp đỡ, tương trợ nhau 🤝","class":"low","note":"Nguyên âm ัว lược bỏ -ั còn lại ว trước âm cuối ย (có thêm dấu Mai Ek).","roots":{"consonant":"ช","vowel":"ัว","final":"ย","tone":"่"},"map":"CTVF"},
+            {"id":253,"group":6,"word":"ขวด","pinyin":"khuat","vowel":"ัว","translation":"Cái chai đựng nước 🍾","class":"high","note":"Nguyên âm ัว lược bỏ -ั còn lại duy nhất ký tự ว trước phụ âm cuối ด.","roots":{"consonant":"ข","vowel":"ัว","final":"ด","tone":"-"},"map":"CVF"},
+            {"id":254,"group":6,"word":"มวย","pinyin":"muai","vowel":"ัว","translation":"Võ thuật cổ truyền Muay Thai 🥊","class":"low","note":"Nguyên âm ัว lược bỏ -ั còn lại ว trước phụ âm cuối ย.","roots":{"consonant":"ม","vowel":"ัว","final":"ย","tone":"-"},"map":"CVF"},
+            {"id":255,"group":6,"word":"กล้วy","pinyin":"kluai","vowel":"ัว","translation":"Quả chuối chín 🍌","class":"mid","note":"Cụm phụ âm ghép กล. Nguyên âm ัว lược bỏ -ั còn lại ว trước ย (có dấu Mai Tho).","roots":{"consonant":"กล","vowel":"ัว","final":"ย","tone":"้"},"map":"CCTVF"},
+            {"id":256,"group":6,"word":"ด้วย","pinyin":"duai","vowel":"ัว","translation":"Cùng với, cũng vậy ➕","class":"mid","note":"Nguyên âm ัว lược bỏ -ั còn lại ว trước ย (có dấu Mai Tho trên đầu ว).","roots":{"consonant":"ด","vowel":"ัว","final":"ย","tone":"้"},"map":"CTVF"},
+            {"id":257,"group":6,"word":"บ๊วย","pinyin":"buai","vowel":"ัว","translation":"Quả xí muội / Đứng vị trí cuối cùng 🍒","class":"mid","note":"Nguyên âm ัว lược bỏ -ั còn lại ว trước ย (có dấu thanh Mai Tri).","roots":{"consonant":"บ","vowel":"ัว","final":"ย","tone":"๊"},"map":"CTVF"},
+            {"id":258,"group":6,"word":"ถ้วย","pinyin":"thuai","vowel":"ัว","translation":"Cái chén, tách trà ☕","class":"high","note":"Nguyên âm ัว lược bỏ -ั còn lại ว trước phụ âm cuối ย có dấu Mai Tho.","roots":{"consonant":"ถ","vowel":"ัว","final":"ย","tone":"้"},"map":"CTVF"},
+            {"id":259,"group":6,"word":"ป่วย","pinyin":"puai","vowel":"ัว","translation":"Bị ốm, bị bệnh 🤒","class":"mid","note":"Nguyên âm ัว lược bỏ -ั còn lại ว trước âm cuối ย (có thêm dấu Mai Ek).","roots":{"consonant":"ป","vowel":"ัว","final":"ย","tone":"่"},"map":"CTVF"},
+            {"id":260,"group":6,"word":"บวก","pinyin":"buak","vowel":"ัว","translation":"Phép cộng, số dương ➕","class":"mid","note":"Nguyên âm ัว lược bỏ -ั còn lại duy nhất ว trước phụ âm cuối ก.","roots":{"consonant":"บ","vowel":"ัว","final":"ก","tone":"-"},"map":"CVF"},
+            {"id":261,"group":6,"word":"พวก","pinyin":"phuak","vowel":"ัว","translation":"Nhóm, chúng tôi, bọn họ 👥","class":"low","note":"Nguyên âm ัว lược bỏ -ั còn lại duy nhất ว trước phụ âm cuối ก.","roots":{"consonant":"พ","vowel":"ัว","final":"ก","tone":"-"},"map":"CVF"},
+            {"id":262,"group":6,"word":"หมวก","pinyin":"muak","vowel":"ัว","translation":"Mũ, nón bảo hiểm 🪖","class":"high","note":"Có phụ âm ghép หอนำ (หม). Nguyên âm ัว lược bỏ -ั còn lại duy nhất ว trước ก.","roots":{"consonant":"หม","vowel":"ัว","final":"ก","tone":"-"},"map":"CCVF"},
+            {"id":263,"group":6,"word":"ลวก","pinyin":"luak","vowel":"ัว","translation":"Trần nước sôi, luộc sơ 🍲","class":"low","note":"Nguyên âm ัว lược bỏ -ั còn lại duy nhất ว trước phụ âm cuối ก.","roots":{"consonant":"ล","vowel":"ัว","final":"ก","tone":"-"},"map":"CVF"},
+            {"id":264,"group":6,"word":"ปลวก","pinyin":"pluak","vowel":"ัว","translation":"Con mối ăn gỗ 🐜","class":"mid","note":"Có cụm phụ âm ghép ปล. Nguyên âm ัว lược bỏ -ั còn lại duy nhất ว trước ก.","roots":{"consonant":"ปล","vowel":"ัว","final":"ก","tone":"-"},"map":"CCVF"}
         ];
 
         const baseLength = words.length;
@@ -597,49 +619,6 @@
             resultsHistory: []
         };
 
-        // Activation Logic
-        document.getElementById('btn-verify').onclick = checkActivationCode;
-        document.getElementById('activation-code').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') checkActivationCode();
-        });
-
-        function checkActivationCode() {
-            const codeInput = document.getElementById('activation-code');
-            const codeValue = codeInput.value.trim().toUpperCase();
-            const errorMsg = document.getElementById('login-error');
-
-            if (VALID_CODES.includes(codeValue)) {
-                // Save valid authentication status in localStorage
-                localStorage.setItem('auth_status', 'true');
-                
-                // Switch interface modes seamlessly
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app-content').classList.remove('hidden');
-                
-                // Initialize engine layouts
-                renderList();
-                updateVisualizer();
-            } else {
-                // Apply visual red-border warning indicators
-                codeInput.classList.remove('focus:border-blue-500');
-                codeInput.classList.add('border-red-500', 'bg-red-50');
-                errorMsg.classList.remove('hidden');
-
-                // Auto shake input to draw user attention
-                codeInput.classList.add('animate-bounce');
-                setTimeout(() => {
-                    codeInput.classList.remove('animate-bounce');
-                }, 500);
-            }
-        }
-
-        // Clean error messages on input refocusing
-        document.getElementById('activation-code').oninput = function() {
-            this.classList.remove('border-red-500', 'bg-red-50');
-            this.classList.add('focus:border-blue-500');
-            document.getElementById('login-error').classList.add('hidden');
-        };
-
         // Dark Mode trigger
         function toggleDarkMode() {
             isDarkMode = !isDarkMode;
@@ -652,58 +631,16 @@
             }
         }
 
-        // Advanced Unicode-aware mapping to resolve Thai stacking and diacritic rules
         function buildHTMLForWord(word, map) {
             let htmlStr = '';
-            let i = 0;
-            
-            // Identify standard Thai zero-width combining marks (Unicode range)
-            const isCombiningMark = (char) => {
-                const code = char.charCodeAt(0);
-                return (code === 0x0E31) || (code >= 0x0E34 && code <= 0x0E3A) || (code >= 0x0E47 && code <= 0x0E4E);
-            };
-
-            const getCharRole = (wordStr, char, index) => {
-                if (map && map[index]) return map[index];
-                const code = char.charCodeAt(0);
-
-                // Ưu tiên: Định nghĩa các ký tự là nguyên âm hoặc dấu nguyên âm
-                const isVowelMarker = (c) => {
-                    const cp = c.charCodeAt(0);
-                    // 0E30-0E3A: Vowels/Combining, 0E40-0E44: Preposed Vowels, 0E47: Mai Taikhú (็)
-                    return (cp >= 0x0E30 && cp <= 0x0E3A) || (cp >= 0x0E40 && cp <= 0x0E44) || (cp === 0x0E47);
-                };
-
-                // 1. Tone Marks (Green)
-                if ((code >= 0x0E48 && code <= 0x0E4B) || code === 0x0E4C) return 'T';
-
-                // 2. Vowel Markers & Transformed Vowels (Red)
-                if (isVowelMarker(char)) return 'V';
-
-                // 3. Consonants
-                if (code >= 0x0E01 && code <= 0x0E2E) {
-                    let lastConsonantIdx = -1;
-                    for (let k = wordStr.length - 1; k >= 0; k--) {
-                        const cCode = wordStr[k].charCodeAt(0);
-                        if (cCode >= 0x0E01 && cCode <= 0x0E2E) {
-                            if (k < wordStr.length - 1 && wordStr[k + 1] === '์') continue;
-                            if (k < wordStr.length - 2 && wordStr[k + 2] === '์') continue;
-                            lastConsonantIdx = k;
-                            break;
-                        }
-                    }
-                    if (index === lastConsonantIdx && index > 0) return 'F';
-                    return 'C';
-                }
-                return 'C';
-            };
-
-            while (i < word.length) {
+            for (let i = 0; i < word.length; i++) {
                 const char = word[i];
-                const role = getCharRole(word, char, i);
+                const role = map[i] || 'C'; // Fallback to consonant if undefined
                 
                 let colorClass = 'text-slate-900 dark:text-white';
-                if (role === 'V') {
+                if (role === 'C') {
+                    colorClass = 'text-slate-900 dark:text-white';
+                } else if (role === 'V') {
                     colorClass = 'text-red-500 dark:text-red-400';
                 } else if (role === 'F') {
                     colorClass = 'text-blue-600 dark:text-blue-400 font-bold';
@@ -720,41 +657,8 @@
 
                 const opacityClass = isRevealed ? 'opacity-100' : 'opacity-[0.12] transition-opacity duration-300';
                 
-                // Look ahead to check if the NEXT characters are zero-width combining marks.
-                // If yes, bundle them into the SAME HTML node as this base consonant to preserve vertical stacking.
-                if (!isCombiningMark(char)) {
-                    let combinedHTML = char;
-                    let nextIndex = i + 1;
-                    
-                    while (nextIndex < word.length && isCombiningMark(word[nextIndex])) {
-                        const combiningChar = word[nextIndex];
-                        const combRole = getCharRole(word, combiningChar, nextIndex);
-                        
-                        let combColorClass = 'text-slate-900 dark:text-white';
-                        if (combRole === 'V') combColorClass = 'text-red-500 dark:text-red-400';
-                        else if (combRole === 'F') combColorClass = 'text-blue-600 dark:text-blue-400 font-bold';
-                        else if (combRole === 'T') combColorClass = 'text-green-500 dark:text-green-400';
-
-                        let combRevealed = true;
-                        if (combRole === 'C' && !revealState.consonant) combRevealed = false;
-                        if (combRole === 'V' && !revealState.vowel) combRevealed = false;
-                        if (combRole === 'F' && !revealState.final) combRevealed = false;
-                        if (combRole === 'T' && !revealState.tone) combRevealed = false;
-
-                        const combOpacityClass = combRevealed ? 'opacity-100' : 'opacity-[0.12] transition-opacity duration-300';
-                        
-                        // Nest inside child inline flow to secure structural integrity and specific tone/vowel coloring
-                        combinedHTML += `<span class="${combColorClass} ${combOpacityClass}">${combiningChar}</span>`;
-                        nextIndex++;
-                    }
-                    
-                    htmlStr += `<span class="${colorClass} ${opacityClass}">${combinedHTML}</span>`;
-                    i = nextIndex; // Fast-forward past the processed combining characters
-                } else {
-                    // Fallback to render orphans securely
-                    htmlStr += `<span class="${colorClass} ${opacityClass}">${char}</span>`;
-                    i++;
-                }
+                // Continuous zero-width stacking preservation via native layout flow
+                htmlStr += `<span class="${colorClass} ${opacityClass}">${char}</span>`;
             }
             return htmlStr;
         }
@@ -1192,13 +1096,10 @@
             });
         }
 
-        // Initialize App on Load only if already authenticated
+        // Initialize App on Load
         window.onload = () => {
-            const isAuth = localStorage.getItem('auth_status');
-            if (isAuth === 'true') {
-                renderList();
-                updateVisualizer();
-            }
+            renderList();
+            updateVisualizer();
         };
     </script>
 </body>
