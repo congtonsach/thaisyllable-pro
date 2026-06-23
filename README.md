@@ -157,4 +157,4 @@ bằng Supabase queries — không cần thay đổi `ui.js` hay `app.js`.
 
 ---
 
-*Made with ❤️ by THÁI DỄ HỌC · [thaideihoc.com](https://thaideihoc.com)*
+*Made with ❤️ by THÁI DỄ HỌC *
