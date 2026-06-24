@@ -351,6 +351,26 @@
                                 <option value="a_to_han">Nguyên âm -ะ (a) + Phụ âm cuối</option>
                                 <option value="o_to_drop">Nguyên âm โ-ะ (o) + Phụ âm cuối</option>
                                 <option value="ua_to_v">Nguyên âm -ัว (ua) + Phụ âm cuối</option>
+                                <option value="aa_long">Nguyên âm -า (aa)</option>
+                                <option value="i_short">Nguyên âm -ิ (i ngắn)</option>
+                                <option value="ii_long">Nguyên âm -ี (ii dài)</option>
+                                <option value="ue_short">Nguyên âm -ึ (ue ngắn)</option>
+                                <option value="uee_long">Nguyên âm -ื (uee dài)</option>
+                                <option value="u_short">Nguyên âm -ุ (u ngắn)</option>
+                                <option value="uu_long">Nguyên âm -ู (uu dài)</option>
+                                <option value="e_long">Nguyên âm เ- (ee dài)</option>
+                                <option value="ae_long">Nguyên âm แ- (aae dài)</option>
+                                <option value="o_long">Nguyên âm โ- (oo dài)</option>
+                                <option value="aw_long">Nguyên âm -อ (aw dài)</option>
+                                <option value="ia">Nguyên âm เ-ีย (ia)</option>
+                                <option value="uea">Nguyên âm เ-ือ (uea)</option>
+                                <option value="ai_maimalai">Nguyên âm ไ- (mai malai)</option>
+                                <option value="ai_maimuan">Nguyên âm ใ- (mai muan)</option>
+                                <option value="ao">Nguyên âm เ-า (ao)</option>
+                                <option value="am">Nguyên âm -ำ (am)</option>
+                                <option value="aw_short">Nguyên âm เ-าะ (aw ngắn)</option>
+                                <option value="ua_open">Nguyên âm -ัว dạng mở</option>
+                                <option value="er_open">Nguyên âm เ-อ dạng mở</option>
                             </select>
                         </div>
                     </div>
@@ -6251,6 +6271,2608 @@
                 ]
             }
         ];
+
+
+        /* ============================================================
+           THƯ VIỆN MỞ RỘNG: 311 TỪ MỚI — TỔNG SAU KHI GHÉP: 526 TỪ
+           CÁCH DÙNG: dán toàn bộ khối này NGAY SAU khai báo thaiDatabase.
+           ============================================================ */
+
+        const THAI_VOWEL_SIGNS = new Set([
+          "ะ","ั","า","ำ","ิ","ี","ึ","ื","ุ","ู","เ","แ","โ","ใ","ไ","ๅ","็","อ","ย","ว"
+        ]);
+        const THAI_TONE_SIGNS = new Set(["่","้","๊","๋"]);
+        const THAI_DIACRITICS = new Set(["์","ํ","๎"]);
+        const THAI_CONSONANTS = new Set(Array.from("กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ"));
+
+        const CLOSED_GROUPS = new Set([
+          "i_short","ii_long","ue_short","uee_long","u_short","uu_long",
+          "e_long","ae_long","o_long","aw_long","ia","uea"
+        ]);
+
+        function inferFinalConsonant(word, group) {
+          if (!CLOSED_GROUPS.has(group)) return "—";
+          const chars = Array.from(word);
+          for (let i = chars.length - 1; i >= 0; i--) {
+            if (THAI_CONSONANTS.has(chars[i])) return chars[i];
+          }
+          return "—";
+        }
+
+        function inferInitialCluster(word, finalChar) {
+          const chars = Array.from(word);
+          const consonants = chars.filter(ch => THAI_CONSONANTS.has(ch));
+          if (finalChar !== "—" && consonants.length > 1) consonants.pop();
+          return consonants.join("") || "—";
+        }
+
+        function buildExpandedRenderStructure(word, group, vowelRoot) {
+          const chars = Array.from(word);
+          const finalChar = inferFinalConsonant(word, group);
+          let finalUsed = false;
+          const result = [];
+
+          for (let i = 0; i < chars.length; i++) {
+            const ch = chars[i];
+            if (THAI_TONE_SIGNS.has(ch)) {
+              if (result.length) {
+                result[result.length - 1].sub = result[result.length - 1].sub || [];
+                result[result.length - 1].sub.push({ char: ch, type: "tone" });
+              }
+              continue;
+            }
+            if (["ั","ิ","ี","ึ","ื","ุ","ู","็"].includes(ch)) {
+              if (result.length) {
+                result[result.length - 1].sub = result[result.length - 1].sub || [];
+                result[result.length - 1].sub.push({ char: ch, type: "vowel" });
+              }
+              continue;
+            }
+            if (THAI_DIACRITICS.has(ch)) {
+              if (result.length) {
+                result[result.length - 1].sub = result[result.length - 1].sub || [];
+                result[result.length - 1].sub.push({ char: ch, type: "tone" });
+              }
+              continue;
+            }
+
+            let type = "initial";
+            if (["เ","แ","โ","ใ","ไ","ะ","า","ำ"].includes(ch)) type = "vowel";
+            else if (THAI_CONSONANTS.has(ch) && finalChar !== "—" && ch === finalChar && !finalUsed) {
+              const laterSame = chars.slice(i + 1).includes(finalChar);
+              if (!laterSame) { type = "final"; finalUsed = true; }
+            } else if (["อ","ย","ว"].includes(ch) && vowelRoot.includes(ch)) type = "vowel";
+
+            result.push({ char: ch, type });
+          }
+          return result;
+        }
+
+        const EXPANDED_311_WORDS = [
+          [
+            "มา",
+            "Đến",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "กิน",
+            "Ăn",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "ดี",
+            "Tốt",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "นึก",
+            "Nghĩ đến",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "มือ",
+            "Bàn tay",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "ลุก",
+            "Đứng dậy",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "ดู",
+            "Xem",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เกม",
+            "Trò chơi",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แม่",
+            "Mẹ",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โต",
+            "Lớn",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "ขอ",
+            "Xin",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เมีย",
+            "Vợ",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เรือ",
+            "Thuyền",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไป",
+            "Đi",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใจ",
+            "Tim; lòng",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เรา",
+            "Chúng ta",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "ทำ",
+            "Làm",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เกาะ",
+            "Đảo; bám",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "ตัว",
+            "Cơ thể; con",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เธอ",
+            "Bạn; cô ấy",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "ลา",
+            "Rời đi; con lừa",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "บิน",
+            "Bay",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "มี",
+            "Có",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "ฝึก",
+            "Luyện tập",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "ถือ",
+            "Cầm; coi là",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "ทุก",
+            "Mọi; mỗi",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "รู้",
+            "Biết",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เพลง",
+            "Bài hát",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แพ้",
+            "Thua; dị ứng",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โก้",
+            "Bảnh bao",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "พอ",
+            "Đủ",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เสีย",
+            "Mất; hỏng",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เสือ",
+            "Hổ",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไกล",
+            "Xa",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใส่",
+            "Mặc; cho vào",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เขา",
+            "Anh ấy; núi",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "คำ",
+            "Từ; lời",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เจาะ",
+            "Khoan; đục",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "หัว",
+            "Đầu",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เจอ",
+            "Gặp",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "กา",
+            "Con quạ; ấm nước",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "ดิน",
+            "Đất",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "ปี",
+            "Năm",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "ดึก",
+            "Khuya",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "ซื้อ",
+            "Mua",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "สุข",
+            "Hạnh phúc",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "อยู่",
+            "Ở",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เลข",
+            "Con số",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แก้",
+            "Sửa",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โง่",
+            "Ngốc",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "รอ",
+            "Đợi",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เรียน",
+            "Học",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เสื้อ",
+            "Áo",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไฟ",
+            "Lửa; điện",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใคร",
+            "Ai",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เอา",
+            "Lấy",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "น้ำ",
+            "Nước",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เพราะ",
+            "Bởi vì; hay",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "กลัว",
+            "Sợ",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เพ้อ",
+            "Mê sảng",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "ตา",
+            "Mắt; ông ngoại",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "หิน",
+            "Đá",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "สี",
+            "Màu sắc",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "ตึก",
+            "Tòa nhà",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "ชื่อ",
+            "Tên",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "จุด",
+            "Điểm; châm",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "หู",
+            "Tai",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เขต",
+            "Khu vực",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แลก",
+            "Đổi",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โชว์",
+            "Trình diễn",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "คอ",
+            "Cổ",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เขียน",
+            "Viết",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เนื้อ",
+            "Thịt; nội dung",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ใหม่",
+            "Mới",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ให้",
+            "Cho",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เบา",
+            "Nhẹ",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "ดำ",
+            "Đen; lặn",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เหาะ",
+            "Bay lượn",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "ชั่ว",
+            "Xấu; giờ",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เผลอ",
+            "Lỡ; vô tình",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "ยา",
+            "Thuốc",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "ยิน",
+            "Nghe; vui lòng",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "ตี",
+            "Đánh",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "ลึก",
+            "Sâu",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "ดื้อ",
+            "Bướng",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "ขุด",
+            "Đào",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "ปู",
+            "Con cua",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เหตุ",
+            "Nguyên nhân",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แดง",
+            "Đỏ",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โยน",
+            "Ném",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "จอ",
+            "Màn hình",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เปลี่ยน",
+            "Thay đổi",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เชื่อ",
+            "Tin",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไหม",
+            "Không?; tơ lụa",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใช้",
+            "Dùng",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เมา",
+            "Say",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "จำ",
+            "Nhớ",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เคาะ",
+            "Gõ",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "ถั่ว",
+            "Đậu",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เหม่อ",
+            "Lơ đãng",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "นา",
+            "Ruộng",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "ชิม",
+            "Nếm",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "หนี",
+            "Chạy trốn",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "คึก",
+            "Sôi nổi",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "มื้อ",
+            "Bữa ăn",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "หยุด",
+            "Dừng",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "งู",
+            "Con rắn",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เมฆ",
+            "Mây",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แรง",
+            "Mạnh; sức lực",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โดน",
+            "Bị; trúng",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "งอ",
+            "Cong",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เตียง",
+            "Giường",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เหลือ",
+            "Còn lại",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไหน",
+            "Nào; đâu",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใน",
+            "Trong",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เงา",
+            "Bóng",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "นำ",
+            "Dẫn; mang",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เลาะ",
+            "Đi men theo",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "มัว",
+            "Mải; mờ",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เออ",
+            "Ừ",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "ปา",
+            "Ném",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "คิด",
+            "Nghĩ",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "ผี",
+            "Ma",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "ศึก",
+            "Trận chiến",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "คือ",
+            "Là",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "ชุด",
+            "Bộ; trang phục",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "ครู",
+            "Giáo viên",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เพศ",
+            "Giới tính",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แสง",
+            "Ánh sáng",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โกง",
+            "Gian lận",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "ต่อ",
+            "Tiếp; nối",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เสียง",
+            "Âm thanh",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เดือน",
+            "Tháng",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไทย",
+            "Thái Lan",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใกล้",
+            "Gần",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เข้า",
+            "Vào",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "ต่ำ",
+            "Thấp",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เบาะ",
+            "Đệm",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "รั่ว",
+            "Rò rỉ",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เอ่อ",
+            "Ờ; ngập ngừng",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "พา",
+            "Dẫn đi",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "ปิด",
+            "Đóng",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "พี่",
+            "Anh, chị",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "ผึ้ง",
+            "Con ong",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "หรือ",
+            "Hoặc",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "สุด",
+            "Cuối cùng; nhất",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "คู่",
+            "Cặp; đôi",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เทป",
+            "Băng dính; băng ghi âm",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แพง",
+            "Đắt",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โค้ง",
+            "Cong; cúi chào",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "พ่อ",
+            "Bố",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เลี้ยง",
+            "Nuôi; chiêu đãi",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เพื่อน",
+            "Bạn",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไก่",
+            "Gà",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใบ",
+            "Lá; tờ",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เช้า",
+            "Buổi sáng",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "ย้ำ",
+            "Nhấn mạnh",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เงาะ",
+            "Quả chôm chôm",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "ทั่ว",
+            "Khắp",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เบอร์",
+            "Số",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "หา",
+            "Tìm",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "ติด",
+            "Dính; mắc",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "นี่",
+            "Đây",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "ซึ้ง",
+            "Cảm động",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "คืน",
+            "Đêm; trả lại",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "ฝุ่น",
+            "Bụi",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "สู้",
+            "Chiến đấu",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เกรด",
+            "Xếp loại",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แถว",
+            "Hàng; khu vực",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โสด",
+            "Độc thân",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "หมอ",
+            "Bác sĩ",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เพียง",
+            "Chỉ; đủ",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เมือง",
+            "Thành phố",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไข่",
+            "Trứng",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใส",
+            "Trong suốt",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เก้า",
+            "Chín",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "ซ้ำ",
+            "Lặp lại",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เสาะ",
+            "Tìm kiếm",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "ครัว",
+            "Bếp",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เซอร์",
+            "Bất ngờ; danh xưng",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "ชา",
+            "Trà; tê",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "ผิด",
+            "Sai",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "นี้",
+            "Này",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "พึ่ง",
+            "Dựa vào",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "ยืน",
+            "Đứng",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "หุ่น",
+            "Mô hình; vóc dáng",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "ผู้",
+            "Người",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เบรก",
+            "Phanh",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แก้ว",
+            "Cốc; thủy tinh",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โกรธ",
+            "Tức giận",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "สอง",
+            "Hai",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เงียบ",
+            "Yên tĩnh",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เรื่อง",
+            "Chuyện",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ได้",
+            "Được",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใหญ่",
+            "Lớn",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เท้า",
+            "Bàn chân",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "ขำ",
+            "Buồn cười",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เปาะ",
+            "Giòn; tiếng nổ nhỏ",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "วัว",
+            "Bò",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เว่อร์",
+            "Quá mức",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "ทา",
+            "Bôi",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "จิต",
+            "Tâm trí",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "ชี้",
+            "Chỉ",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "ถึง",
+            "Đến",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "ฟื้น",
+            "Hồi phục",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "คุ้น",
+            "Quen",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "หนู",
+            "Chuột; em",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เชฟ",
+            "Đầu bếp",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แล้ว",
+            "Rồi",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โปรด",
+            "Vui lòng; yêu thích",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "มอง",
+            "Nhìn",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เรียบ",
+            "Phẳng; đơn giản",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เครื่อง",
+            "Máy; đồ dùng",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ใต้",
+            "Dưới; miền Nam",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใย",
+            "Sợi; vì sao",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เก่า",
+            "Cũ",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "ลำ",
+            "Thân; chiếc",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เฉาะ",
+            "Bổ; chặt",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "บัว",
+            "Hoa sen",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เฟอร์",
+            "Đồ nội thất",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "ฟ้า",
+            "Bầu trời",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "มิตร",
+            "Bạn bè",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "ขี่",
+            "Cưỡi; lái",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "ดึง",
+            "Kéo",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "ตื่น",
+            "Thức dậy",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "วุ่น",
+            "Bận rộn; rối",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "หมู",
+            "Con lợn",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เค้ก",
+            "Bánh kem",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แปล",
+            "Dịch",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โทษ",
+            "Lỗi; hình phạt",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "ของ",
+            "Đồ vật; của",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เทียบ",
+            "So sánh",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เปลือง",
+            "Tốn",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไหว",
+            "Chịu nổi; rung",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใด",
+            "Nào",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เล่า",
+            "Kể",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "กำ",
+            "Nắm; bó",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เพาะ",
+            "Nuôi trồng",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "ผัว",
+            "Chồng",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เทอญ",
+            "Xin hãy",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "ช้า",
+            "Chậm",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "ทิศ",
+            "Hướng",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "สี่",
+            "Bốn",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "มึน",
+            "Choáng",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "ชื่น",
+            "Tươi vui",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "อุ่น",
+            "Ấm",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "รูป",
+            "Hình ảnh",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เท",
+            "Đổ",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แผน",
+            "Kế hoạch",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โลก",
+            "Thế giới",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "ห้อง",
+            "Phòng",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เกลียด",
+            "Ghét",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เคือง",
+            "Giận",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไหล",
+            "Chảy",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใฝ่",
+            "Khao khát",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เผา",
+            "Đốt",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "ช้ำ",
+            "Bầm; đau lòng",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เหมาะ",
+            "Phù hợp",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "นัว",
+            "Đậm đà",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "เกลอ",
+            "Bạn thân",
+            "—",
+            "er_open",
+            "เ-อ (oe open)",
+            "เ-อ"
+          ],
+          [
+            "กล้า",
+            "Dũng cảm",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "พิษ",
+            "Chất độc",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "ฟรี",
+            "Miễn phí",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "ขึง",
+            "Căng ra",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "ลื่น",
+            "Trơn",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "รุ่น",
+            "Thế hệ; mẫu",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "พูด",
+            "Nói",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เซ",
+            "Loạng choạng",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แผล",
+            "Vết thương",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โรค",
+            "Bệnh",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "นอน",
+            "Ngủ",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เครียด",
+            "Căng thẳng",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เรือง",
+            "Rực rỡ",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไล่",
+            "Đuổi",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใคร่",
+            "Mong muốn",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เหงา",
+            "Cô đơn",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "ค่ำ",
+            "Buổi tối",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เยาะ",
+            "Chế giễu",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "ชัวร์",
+            "Chắc chắn",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "ฆ่า",
+            "Giết",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "สิทธิ์",
+            "Quyền",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "จีน",
+            "Trung Quốc",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "ตึง",
+            "Căng",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "กลืน",
+            "Nuốt",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "มุ่ง",
+            "Hướng tới",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "ถูก",
+            "Đúng; bị",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เห",
+            "Lệch",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แห้ง",
+            "Khô",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โชค",
+            "May mắn",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "สอน",
+            "Dạy",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เบียด",
+            "Chen lấn",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เลื่อน",
+            "Dời; trượt",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ],
+          [
+            "ไว้",
+            "Đểไว้",
+            "—",
+            "ai_maimalai",
+            "ไ- (ai)",
+            "ไ-"
+          ],
+          [
+            "ใบ้",
+            "Câm; gợi ý",
+            "—",
+            "ai_maimuan",
+            "ใ- (ai)",
+            "ใ-"
+          ],
+          [
+            "เดา",
+            "Đoán",
+            "—",
+            "ao",
+            "เ-า (ao)",
+            "เ-า"
+          ],
+          [
+            "ถ้ำ",
+            "Hang động",
+            "—",
+            "am",
+            "-ำ (am)",
+            "-ำ"
+          ],
+          [
+            "เกราะ",
+            "Áo giáp",
+            "—",
+            "aw_short",
+            "เ-าะ (aw short)",
+            "เ-าะ"
+          ],
+          [
+            "ทัวร์",
+            "Du lịch",
+            "—",
+            "ua_open",
+            "-ัว (ua open)",
+            "-ัว"
+          ],
+          [
+            "ค่า",
+            "Giá trị",
+            "—",
+            "aa_long",
+            "-า (aa)",
+            "-า"
+          ],
+          [
+            "ลิ้น",
+            "Lưỡi",
+            "—",
+            "i_short",
+            "-ิ (i)",
+            "-ิ"
+          ],
+          [
+            "ทีม",
+            "Đội",
+            "—",
+            "ii_long",
+            "-ี (ii)",
+            "-ี"
+          ],
+          [
+            "บึ้ง",
+            "Cau có",
+            "—",
+            "ue_short",
+            "-ึ (ue)",
+            "-ึ"
+          ],
+          [
+            "ฝืน",
+            "Cưỡng lại",
+            "—",
+            "uee_long",
+            "-ื (uee)",
+            "-ื"
+          ],
+          [
+            "รุ่ง",
+            "Rạng sáng; phát triển",
+            "—",
+            "u_short",
+            "-ุ (u)",
+            "-ุ"
+          ],
+          [
+            "ปลูก",
+            "Trồng",
+            "—",
+            "uu_long",
+            "-ู (uu)",
+            "-ู"
+          ],
+          [
+            "เก",
+            "Nghịch; lêu lổng",
+            "—",
+            "e_long",
+            "เ- (ee)",
+            "เ-"
+          ],
+          [
+            "แคบ",
+            "Hẹp",
+            "—",
+            "ae_long",
+            "แ- (aae)",
+            "แ-"
+          ],
+          [
+            "โซน",
+            "Khu vực",
+            "—",
+            "o_long",
+            "โ- (oo)",
+            "โ-"
+          ],
+          [
+            "ก่อน",
+            "Trước",
+            "—",
+            "aw_long",
+            "-อ (aw)",
+            "-อ"
+          ],
+          [
+            "เสียบ",
+            "Cắm",
+            "—",
+            "ia",
+            "เ-ีย (ia)",
+            "เ-ีย"
+          ],
+          [
+            "เตือน",
+            "Nhắc nhở",
+            "—",
+            "uea",
+            "เ-ือ (uea)",
+            "เ-ือ"
+          ]
+        ];
+
+        const expandedEntries = EXPANDED_311_WORDS.map(([word, meaning, transliteration, group, groupName, vowelRoot]) => {
+          const final = inferFinalConsonant(word, group);
+          return {
+            word,
+            meaning,
+            transliteration,
+            group,
+            groupName,
+            initial: inferInitialCluster(word, final),
+            vowelRoot,
+            final,
+            tone: Array.from(word).find(ch => THAI_TONE_SIGNS.has(ch)) || "—",
+            renderStructure: buildExpandedRenderStructure(word, group, vowelRoot)
+          };
+        });
+
+        const duplicatedExpandedWords = expandedEntries.filter(
+          (item, index, arr) =>
+            thaiDatabase.some(oldItem => oldItem.word === item.word) ||
+            arr.findIndex(x => x.word === item.word) !== index
+        );
+
+        if (duplicatedExpandedWords.length) {
+          console.warn("Các từ bị trùng và không được thêm:", duplicatedExpandedWords.map(x => x.word));
+        }
+
+        const safeExpandedEntries = expandedEntries.filter(
+          (item, index, arr) =>
+            !thaiDatabase.some(oldItem => oldItem.word === item.word) &&
+            arr.findIndex(x => x.word === item.word) === index
+        );
+
+        thaiDatabase.push(...safeExpandedEntries);
+        console.log(`Đã thêm ${safeExpandedEntries.length} từ. Tổng thư viện: ${thaiDatabase.length} từ.`);
 
         // 2. APP STATE VARIABLES
         let activeWord = thaiDatabase[0];
