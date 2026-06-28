@@ -168,7 +168,11 @@
                     <button id="nav-btn-lookup" onclick="showTab('lookup')" class="tab-transition px-4 py-2 rounded-xl text-slate-500 hover:text-slate-800 cursor-pointer">Tra Cứu</button>
                     <button id="nav-btn-theory" onclick="showTab('theory')" class="tab-transition px-4 py-2 rounded-xl text-slate-500 hover:text-slate-800 cursor-pointer">Lý Thuyết</button>
                     <button id="nav-btn-quiz" onclick="showTab('quiz')" class="tab-transition px-4 py-2 rounded-xl text-slate-500 hover:text-slate-800 cursor-pointer">Luyện Tập (Quiz)</button>
-                </nav>
+               		<!-- Nút chuyển tab Học Tiếng Thái mới -->
+<button onclick="switchTab('tab-thai')" id="btn-tab-thai" class="tab-btn px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-bold text-sm transition">
+    🇹🇭 Luyện nghe - chép chính tả
+</button>
+				</nav>
 
                 <!-- User Profile / Logout Option -->
                 <div class="flex items-center space-x-3">
@@ -523,6 +527,22 @@
                     </div>
                 </div>
             </section>
+
+<!-- NỘI DUNG TAB: HỌC TIẾNG THÁI (Mặc định sẽ ẩn đi bằng class 'hidden') -->
+<section id="content-tab-thai" class="tab-content hidden flex-grow flex flex-col w-full">
+    <div class="iframe-container bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden w-full h-[calc(100vh-160px)]">
+        <iframe 
+            id="thai-app-iframe"
+            src="about:blank" 
+            allow="autoplay" 
+            title="Học Tiếng Thái - Dictation"
+            loading="lazy"
+            class="w-full h-full border-0">
+        </iframe>
+    </div>
+</section>
+			
+			
         </main>
     </div>
 
@@ -9237,6 +9257,27 @@
             document.getElementById('quiz-next-btn').classList.remove('hidden');
             currentQuizIndex++;
         }
+		
+		// 1. Khai báo đường dẫn tương đối đến file game Dictation của bạn trong cùng thư mục
+const DICTATION_APP_URL = "./dictation_tdh.html"; // Hoặc "thai-dictation-mvp.html" tùy theo tên file bạn đặt trên GitHub
+
+function switchTab(tabId) {
+    // 2. Ẩn toàn bộ các vùng nội dung Tab khác của bạn
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+    });
+
+    // 3. Hiển thị Tab được chọn (nếu là Tab tiếng Thái thì dùng flex để căng tràn màn hình)
+    const activeContent = document.getElementById(`content-${tabId}`);
+    if (activeContent) {
+        if (tabId === 'tab-thai') {
+            activeContent.classList.remove('hidden');
+            activeContent.classList.add('flex');
+        } else {
+            activeContent.classList.remove('hidden');ới nhất itHub: if
+ram // 4. Reset trạng thái màu sắc Active  n web mới sau khoảng 1 phút
+			
     </script>
 </body>
 </html>
