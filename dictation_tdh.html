@@ -51,21 +51,31 @@
 </head>
 <body class="bg-stone-50 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 min-h-full flex flex-col transition-colors duration-200">
 
-    <!-- TOP HEADER / NAVIGATION -->
-    <header class="sticky top-0 z-40 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
+    <!-- TOP HEADER / NAVIGATION (Sẽ ẩn khi ở màn hình đăng nhập) -->
+    <header id="main-header" class="hidden sticky top-0 z-40 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-2 cursor-pointer" onclick="UI.navigateTo('home')">
-                <span class="text-brand-light dark:text-brand-dark text-2xl font-black tracking-wider flex items-center">
+                <span class="text-brand-light dark:text-brand-dark text-xl md:text-2xl font-black tracking-wider flex items-center">
                     🇹🇭 THÁI DỄ HỌC
                 </span>
             </div>
             
-            <div class="flex items-center space-x-3">
-                <!-- Session status / Quick stats -->
+            <div class="flex items-center space-x-2 md:space-x-3">
+                <!-- User Code Badge -->
+                <span id="user-code-badge" class="hidden sm:inline-block bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-mono px-2.5 py-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                    CODE: ---
+                </span>
+                <!-- Settings Button -->
                 <button onclick="UI.openSettingsModal()" class="p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition" aria-label="Cài đặt">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </button>
+                <!-- Logout Button -->
+                <button onclick="UI.handleLogout()" class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl transition" title="Đăng xuất">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
                 </button>
             </div>
@@ -75,8 +85,40 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-6 flex flex-col justify-start">
         
+        <!-- ==================== SCREEN 0: LOGIN GATE ==================== -->
+        <section id="screen-login" class="my-auto max-w-md w-full mx-auto space-y-6 animate-fade-in py-12">
+            <div class="text-center space-y-2">
+                <span class="text-4xl">🇹🇭</span>
+                <h1 class="text-2xl md:text-3xl font-black text-zinc-900 dark:text-white tracking-tight">THÁI DỄ HỌC</h1>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">Vui lòng nhập Mã khóa học của bạn để tiếp tục học tập</p>
+            </div>
+
+            <div class="bg-white dark:bg-zinc-800 p-6 md:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-700 shadow-xl space-y-6">
+                <div class="space-y-2">
+                    <label for="login-code-input" class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Mã kích hoạt khóa học</label>
+                    <input type="text" id="login-code-input" 
+                           class="w-full px-4 py-3 border-2 border-zinc-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 rounded-2xl text-center font-mono font-bold text-lg focus:ring-4 focus:ring-cyan-100 dark:focus:ring-cyan-950 outline-none focus:border-cyan-500 transition-all uppercase placeholder-zinc-300" 
+                           placeholder="TH-XXXX-XXXX" 
+                           autocomplete="off" 
+                           autocorrect="off" 
+                           autocapitalize="characters">
+                    <p class="text-[10px] text-zinc-400 italic text-center">Định dạng mẫu: TH-82J1-M92N hoặc TH-4K2P-V71L</p>
+                </div>
+
+                <button onclick="UI.handleLoginSubmit()" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-extrabold rounded-2xl shadow-md transition-all transform active:scale-95 text-center flex items-center justify-center gap-2">
+                    <span>🔓 KÍCH HOẠT & BẮT ĐẦU</span>
+                </button>
+            </div>
+
+            <!-- Thai cultural visual block -->
+            <div class="text-center text-[11px] text-zinc-400">
+                <p>Hệ thống tự động ghi nhớ phiên đăng nhập của bạn.</p>
+                <p class="mt-1">Liên hệ Quản trị viên nếu bạn chưa được cấp mã kích hoạt.</p>
+            </div>
+        </section>
+
         <!-- ==================== SCREEN 1: HOME ==================== -->
-        <section id="screen-home" class="space-y-8 animate-fade-in">
+        <section id="screen-home" class="hidden space-y-8 animate-fade-in">
             <!-- Hero / Intro -->
             <div class="text-center py-6 space-y-3">
                 <span class="inline-block bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
@@ -85,7 +127,7 @@
                 <h1 class="text-3xl md:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
                     Luyện Nghe – Chép Chính Tả Tiếng Thái
                 </h1>
-                <p class="text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto">
+                <p class="text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto text-sm md:text-base">
                     Nâng cao phản xạ nghe, học từ vựng trực quan và rèn luyện kỹ năng viết tiếng Thái chuẩn xác thông qua các mẫu câu thông dụng thực tế.
                 </p>
             </div>
@@ -564,9 +606,6 @@
     <!-- TOAST POPUP NOTIFICATION -->
     <div id="toast-wrapper" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none" role="status" aria-live="polite"></div>
 
-    <!-- AUDIO FOR FX SOUNDS (Muted by default if sound fx toggled off) -->
-    <!-- Utilizing synthesized minimal tones via Web Audio API, so no external assets are required! -->
-
     <!-- ==================== CORE SCRIPT SECTIONS ==================== -->
 
     <!-- LESSON DATA (60 HIGH-QUALITY VIET-THAI DICTATION ITEMS) -->
@@ -610,7 +649,7 @@
             { id: "m-time-4", level: "medium", topic: "time", thai: "วันอาทิตย์เป็นวันหยุด", acceptedAnswers: ["วันอาทิตย์เป็นวันหยุด"], meaningVi: "Chủ nhật là ngày nghỉ", romanization: "wan a-thít pen wan yùt", explanation: "Cấu trúc chủ ngữ + động từ để chỉ thói quen ngày nghỉ.", difficulty: 2.5 },
             { id: "m-time-5", level: "medium", topic: "time", thai: "ฉันตื่นนอนตอนหกโมงเช้า", acceptedAnswers: ["ฉันตื่นนอนตอนหกโมงเช้า"], meaningVi: "Tôi thức dậy lúc 6 giờ sáng", romanization: "chản từn norn ton hòk moong cháo", explanation: "Mô tả sinh hoạt hằng ngày bằng mốc thời gian.", difficulty: 2.8 },
             { id: "m-time-6", level: "medium", topic: "time", thai: "คุณจะไปไหน", acceptedAnswers: ["คุณจะไปไหน", "คุณจะไปไหนครับ", "คุณจะไปไหนค่ะ"], meaningVi: "Bạn định đi đâu thế?", romanization: "khun chà pai hải", explanation: "Câu hỏi han di chuyển phổ biến.", difficulty: 2 },
-            { id: "m-time-7", level: "medium", topic: "time", thai: "กรุงเทพฯ เป็นเมืองหลวงของไทย", acceptedAnswers: ["กรุงเทพฯเป็นเมืองหลวงของไทย", "กรุงเทพ เป็นเมืองหลวงของไทย"], meaningVi: "Bangkok là thủ đô của Thái Lan", romanization: "krung-thêp pen mương lủang khỏng thai", explanation: "Kiến thức địa lý sử dụng từ viết tắt lừng danh 'กรุงเทพฯ'.", difficulty: 3 },
+            { id: "m-time-7", level: "medium", topic: "time", thai: "กรุงเทพฯ เป็นเมืองหลวง của Thái", acceptedAnswers: ["กรุงเทพฯเป็นเมืองหลวงของไทย", "กรุงเทพ เป็นเมืองหลวงของไทย"], meaningVi: "Bangkok là thủ đô của Thái Lan", romanization: "krung-thêp pen mương lủang khỏng thai", explanation: "Kiến thức địa lý sử dụng từ viết tắt lừng danh 'กรุงเทพฯ'.", difficulty: 3 },
 
             // MEDIUM / FAMILY (7 câu)
             { id: "m-fam-1", level: "medium", topic: "family", thai: "ครอบครัวของฉันมีห้าคน", acceptedAnswers: ["ครอบครัวของฉันมีห้าคน", "ครอบครัวของผมมีห้าคน"], meaningVi: "Gia đình tôi có năm người", romanization: "khrôp-khrua khỏng chản mi hạ khon", explanation: "Mô tả nhân khẩu gia đình.", difficulty: 2.4 },
@@ -650,12 +689,18 @@
             { id: "a-cul-4", level: "advanced", topic: "thai-culture", thai: "วัดพระแก้วเป็นวัดที่สวยงามและสำคัญมาก", acceptedAnswers: ["วัดพระแก้วเป็นวัดที่สวยงามและสำคัญมาก"], meaningVi: "Chùa Phật Ngọc là ngôi chùa vô cùng tráng lệ và quan trọng", romanization: "wát phra-kêo pen wát thî sủay-ngam lẹ sảm-khan mâk", explanation: "Địa danh văn hoá lịch sử tâm linh tối cao.", difficulty: 4.1 },
             { id: "a-cul-5", level: "advanced", topic: "daily-life", thai: "การออกกำลังกายช่วยให้เรามีสุขภาพแข็งแรง", acceptedAnswers: ["การออกกำลังกายช่วยให้เรามีสุขภาพแข็งแรง"], meaningVi: "Luyện tập thể dục thể thao giúp chúng ta có cơ thể dẻo dai", romanization: "kan òk-kam-lang-kai chuây hải rao mi sùk-kha-phâp khẻng-reng", explanation: "Câu nghị luận đơn giản cải thiện sức khoẻ tốt.", difficulty: 4.0 }
         ];
+
+        // DANH SÁCH MÃ ĐĂNG NHẬP CỐ ĐỊNH (Bạn có thể thêm mã mới vào đây)
+        const ALLOWED_LOGIN_CODES = [
+            "TH-82J1-M92N",
+            "TH-4K2P-V71L"
+        ];
     </script>
 
     <!-- STATE MANAGEMENT & STORAGE SERVICE -->
     <script>
         const AppState = {
-            currentScreen: "home",
+            currentScreen: "login", // login | home | setup | play | results
             mode: "practice", // practice | test
             selectedLevel: "all",
             selectedTopic: "all",
@@ -687,6 +732,8 @@
             
             getDefaultData() {
                 return {
+                    isLoggedIn: false,
+                    currentLoginCode: null,
                     totalPracticed: 0,
                     totalCorrect: 0,
                     completedSessions: 0,
@@ -985,8 +1032,15 @@
                 // Keyboard inputs bind
                 this.bindGlobalKeyboardShortcuts();
                 
-                // Set initial home screen
-                this.navigateTo("home");
+                // Check Login Status from Storage
+                const data = StorageService.load();
+                if (data.isLoggedIn && ALLOWED_LOGIN_CODES.includes(data.currentLoginCode)) {
+                    document.getElementById("user-code-badge").innerText = `CODE: ${data.currentLoginCode}`;
+                    document.getElementById("user-code-badge").classList.remove("hidden");
+                    this.navigateTo("home");
+                } else {
+                    this.navigateTo("login");
+                }
             },
 
             // Main routing engine for views
@@ -1000,9 +1054,16 @@
                 }
 
                 // Hide all screens
-                ["home", "setup", "play", "results"].forEach(id => {
+                ["login", "home", "setup", "play", "results"].forEach(id => {
                     document.getElementById(`screen-${id}`).classList.add("hidden");
                 });
+
+                // Show main header only if not in login screen
+                if (screenId === "login") {
+                    document.getElementById("main-header").classList.add("hidden");
+                } else {
+                    document.getElementById("main-header").classList.remove("hidden");
+                }
 
                 // Show current screen
                 document.getElementById(`screen-${screenId}`).classList.remove("hidden");
@@ -1012,6 +1073,50 @@
                     this.renderHomepageStats();
                 } else if (screenId === "setup") {
                     this.updateSetupButtons();
+                }
+            },
+
+            /* LOGIN SUBMIT HANDLERS */
+            handleLoginSubmit() {
+                const codeInput = document.getElementById("login-code-input");
+                const enteredCode = codeInput.value.trim().toUpperCase();
+
+                if (!enteredCode) {
+                    this.showToast("Vui lòng nhập Mã kích hoạt để tham gia khóa học!", "error");
+                    return;
+                }
+
+                if (ALLOWED_LOGIN_CODES.includes(enteredCode)) {
+                    const data = StorageService.load();
+                    data.isLoggedIn = true;
+                    data.currentLoginCode = enteredCode;
+                    StorageService.save(data);
+
+                    document.getElementById("user-code-badge").innerText = `CODE: ${enteredCode}`;
+                    document.getElementById("user-code-badge").classList.remove("hidden");
+
+                    this.showToast("Kích hoạt mã thành công! Chào mừng bạn học viên.", "success");
+                    
+                    // Clear inputs
+                    codeInput.value = "";
+                    
+                    this.navigateTo("home");
+                } else {
+                    this.showToast("Mã kích hoạt không đúng hoặc đã hết hạn!", "error");
+                }
+            },
+
+            handleLogout() {
+                const confirmed = confirm("Bạn có chắc chắn muốn Đăng xuất và đổi mã học viên khác không?");
+                if (confirmed) {
+                    const data = StorageService.load();
+                    data.isLoggedIn = false;
+                    data.currentLoginCode = null;
+                    StorageService.save(data);
+
+                    document.getElementById("user-code-badge").classList.add("hidden");
+                    this.showToast("Đã đăng xuất thành công.", "success");
+                    this.navigateTo("login");
                 }
             },
 
@@ -1322,7 +1427,7 @@
                     const indicator = document.getElementById("listen-limit-indicator");
                     if (remaining <= 0) {
                         indicator.innerText = "Hết lượt nghe!";
-                        indicator.className = "text-xs text-rose-500 font-extrabold absolute top-14 left-1/2 transform -translate-x-1/2 whitespace-nowrap animate-pulse";
+                        indicator.className = "text-xs text-rose-500 font-extrabold absolute top-14 left-1/2 transform -translate-x-1/2 whitespace-nowrap";
                         document.getElementById("btn-audio-main").classList.add("opacity-40", "cursor-not-allowed");
                         document.getElementById("btn-audio-main").setAttribute("disabled", "true");
                     } else {
@@ -1342,8 +1447,6 @@
 
                 if (AppState.hintLevel >= 1) {
                     document.getElementById("hint-box-1").classList.remove("hidden");
-                    // Thai word segmentation for count
-                    const wordsCount = item.thai.split(" ").filter(Boolean).length || 1;
                     const charCount = Array.from(item.thai).filter(c => c !== " ").length;
                     document.getElementById("hint-content-1").innerText = `"${item.meaningVi}" - Gồm khoảng ${charCount} ký tự tiếng Thái.`;
                 }
@@ -1357,14 +1460,12 @@
                 if (AppState.hintLevel >= 3) {
                     document.getElementById("hint-box-3").classList.remove("hidden");
                     document.getElementById("hint-content-3").innerText = item.romanization;
-                    // Max hint reached, disable button
                     document.getElementById("btn-use-hint").classList.add("opacity-50", "cursor-not-allowed");
                 }
             },
 
             /* KEYBOARD VIRTUAL COMPONENT */
             buildVirtualKeyboard() {
-                // Shortened standard Thai typing rows mapping typical layouts
                 const r1 = ["ๆ", "ไ", "ำ", "พ", "ะ", "ั", "ี", "ร", "น", "ย", "บ", "ล"];
                 const r2 = ["ฟ", "ห", "ก", "ด", "เ", "้", "่", "า", "ส", "ว", "ง"];
                 const r3 = ["ผ", "ป", "แ", "อ", "ิ", "ื", "ท", "ม", "ใ", "ฝ"];
@@ -1438,7 +1539,6 @@
                     const activeElement = document.activeElement;
                     const isInputActive = activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
 
-                    // Escape works to close modals or exit playing
                     if (e.key === "Escape") {
                         if (!document.getElementById("settings-modal").classList.contains("hidden")) {
                             this.closeSettingsModal();
@@ -1472,10 +1572,12 @@
                         }
                     }
 
-                    // Enter controls validation submission
+                    // Enter controls validation submission or Login Gate
                     if (e.key === "Enter") {
-                        if (AppState.currentScreen === "play") {
-                            // If user is focused on Textarea, allow Enter shortcut, prevent default newline insertion
+                        if (AppState.currentScreen === "login") {
+                            e.preventDefault();
+                            this.handleLoginSubmit();
+                        } else if (AppState.currentScreen === "play") {
                             if (isInputActive) {
                                 e.preventDefault();
                             }
@@ -1529,12 +1631,11 @@
                     AudioService.playSfx("wrong");
                 }
 
-                // Show detailed feedback immediately in Practice Mode, or hide until results if Test mode
+                // Show detailed feedback immediately in Practice Mode
                 if (AppState.mode === "practice") {
                     this.showAnswerFeedback(isMatched, userRaw, item);
                 } else {
                     this.showToast("Đã ghi nhận đáp án! Chuyển sang câu tiếp theo.", "success");
-                    // Automatically click next after tiny delay to expedite tests
                     setTimeout(() => {
                         this.nextQuestion();
                     }, 800);
@@ -1618,7 +1719,6 @@
                     } else if (c.status === "missing") {
                         el.className = "border-b-2 border-solid border-emerald-500 px-0.5 font-bold";
                     } else if (c.status === "extra") {
-                        // Correct string doesn't have the user's redundant characters
                         el.innerHTML = "&nbsp;";
                         el.className = "w-2 inline-block opacity-20";
                     }
@@ -1654,7 +1754,6 @@
                     AppState.currentIndex++;
                     this.loadQuestion(AppState.currentIndex);
                 } else {
-                    // Session concluded!
                     this.finishLessonSession();
                 }
             },
@@ -1662,7 +1761,6 @@
             skipQuestion() {
                 if (AppState.hasSubmitted) return;
                 
-                // Prompt skipped answer as incorrect 0 score
                 const item = AppState.sessionItems[AppState.currentIndex];
                 AppState.hasSubmitted = true;
                 
@@ -1702,16 +1800,12 @@
                 const correctCount = AppState.answers.filter(a => a.isCorrect).length;
                 const wrongCount = totalItems - correctCount;
                 const accuracy = totalItems > 0 ? Math.round((correctCount / totalItems) * 100) : 0;
-                
-                // Compute total cumulative listens
                 const totalListens = AppState.answers.reduce((acc, curr) => acc + curr.listens, 0);
 
-                // Cumulative dynamic score mapping relative to 100 max scale
                 const maxPossibleScore = totalItems * 100;
                 const achievedScore = AppState.score;
                 const finalScaleScore = maxPossibleScore > 0 ? Math.round((achievedScore / maxPossibleScore) * 100) : 0;
 
-                // Write records back to LocalStorage
                 const data = StorageService.load();
                 data.completedSessions = (data.completedSessions || 0) + 1;
                 data.lastStudyDate = new Date().toDateString();
@@ -1729,7 +1823,6 @@
                 const sec = Math.floor((duration % 60000) / 1000);
                 document.getElementById("results-completion-time").innerText = `Thời gian hoàn thành: ${min.toString().padStart(2, '0')} phút ${sec.toString().padStart(2, '0')} giây`;
 
-                // Build Detail lists
                 this.renderResultsDetails();
 
                 // Setup Retry errors CTA status
@@ -1787,17 +1880,14 @@
                 this.launchPlayScreen();
             },
 
-            // Save records to Local Storage
             updateLocalStats(itemId, isCorrect) {
                 const data = StorageService.load();
                 
-                // Track total counters
                 data.totalPracticed = (data.totalPracticed || 0) + 1;
                 if (isCorrect) {
                     data.totalCorrect = (data.totalCorrect || 0) + 1;
                 }
 
-                // Item stats updating
                 if (!data.itemStats) data.itemStats = {};
                 if (!data.itemStats[itemId]) {
                     data.itemStats[itemId] = { attempts: 0, correct: 0, wrong: 0, lastPracticed: null };
@@ -1812,17 +1902,14 @@
                 }
                 stat.lastPracticed = new Date().toISOString();
 
-                // Wrong item IDs array logic
                 if (!data.wrongItemIds) data.wrongItemIds = [];
                 const idx = data.wrongItemIds.indexOf(itemId);
                 
                 if (isCorrect) {
-                    // Correct answer clears previous mistake record
                     if (idx > -1) {
                         data.wrongItemIds.splice(idx, 1);
                     }
                 } else {
-                    // Add to mistake database if not yet registered
                     if (idx === -1) {
                         data.wrongItemIds.push(itemId);
                     }
@@ -1848,7 +1935,6 @@
                 document.getElementById("opt-vietnamese").checked = data.settings.showVietnamese;
                 document.getElementById("opt-sound-fx").checked = data.settings.enableSoundFx;
 
-                // Sync UI config boxes
                 document.querySelectorAll("[id^='btn-goal-']").forEach(b => b.className = "py-2 px-3 border border-zinc-200 dark:border-zinc-700 rounded-xl font-medium text-xs transition text-zinc-500");
                 const currentGoalBtn = document.getElementById(`btn-goal-${data.settings.dailyGoal}`);
                 if (currentGoalBtn) {
@@ -1893,11 +1979,19 @@
             resetProgress() {
                 const confirmClear = confirm("CẢNH BÁO: Bạn có chắc chắn muốn xóa vĩnh viễn toàn bộ tiến độ học tập trên trình duyệt này? Điểm số, mục tiêu và danh sách câu sai sẽ được đặt lại về 0.");
                 if (confirmClear) {
-                    localStorage.removeItem(StorageService.KEY);
+                    const data = StorageService.load();
+                    const keepLoginCode = data.currentLoginCode;
+                    const keepIsLoggedIn = data.isLoggedIn;
+                    
+                    // Reset only progress and statistics
+                    const newData = this.getDefaultData();
+                    newData.isLoggedIn = keepIsLoggedIn;
+                    newData.currentLoginCode = keepLoginCode;
+
+                    localStorage.setItem(StorageService.KEY, JSON.stringify(newData));
                     this.showToast("Đã đặt lại tiến độ học tập!", "success");
                     this.closeSettingsModal();
                     
-                    // Force refresh page to clear state completely
                     setTimeout(() => {
                         window.location.reload();
                     }, 500);
